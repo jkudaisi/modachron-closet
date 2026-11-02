@@ -164,7 +164,7 @@ decor.forEach(([n,s],di)=>loadGLB(`models/props/${n}.glb`).then(o=>{const b=new 
 // ---------- stop 0: dress form + real draped looks ----------
 const MAN=new THREE.Vector3(mobile?0:.85,0,2.2);
 const man=new THREE.Group();man.position.copy(MAN);man.rotation.y=-.25;groups[0].add(man);
-const formM=pbr('rough_linen',1.5,0xe6dccb,{roughness:1});
+const formM=pbr('jersey_melange',2,0x3a3836,{roughness:1});
 const formGLB=await loadGLB('models/man/dressform.glb');const formGeo=firstGeo(formGLB);
 const form=new THREE.Mesh(formGeo,formM);form.castShadow=true;man.add(form);
 {const cap=new THREE.Mesh(new THREE.SphereGeometry(.05,20,12),brass);cap.position.y=1.82;man.add(cap);
@@ -173,7 +173,8 @@ const form=new THREE.Mesh(formGeo,formM);form.castShadow=true;man.add(form);
  const rug=new THREE.Mesh(new THREE.CircleGeometry(1.25,64),pbr('wool_boucle',3,0xd9cbb6,{roughness:1}));rug.rotation.x=-Math.PI/2;rug.position.y=.004;rug.receiveShadow=true;man.add(rug)}
 const formBox=new THREE.Box3().setFromBufferAttribute(formGeo.attributes.position);const formSh=formBox.max.y-.12;
 const LOOKT=['coat','shirt','hoodie','party'];
-const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();const inner=makeG(t,0xffffff,-1,false);inner.position.y=formSh-HY[t];inner.scale.set(1.06,1,1.18);o.add(inner);o.visible=false;man.add(o);
+const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
+  const kx=Math.max(1,fs.x*1.12/gs.x),kz=Math.max(1,fs.z*1.22/gs.z);inner.scale.set(kx,Math.max(1,kx*.92),kz);inner.position.y=formBox.max.y-.02+(t==='hoodie'?.14:0);o.add(inner);o.visible=false;man.add(o);
   loadHi(t).then(p=>fillG(inner,p,0xffffff));return{o,w:0,tw:0}});
 await loadHi('coat');
 // boots for rain look
@@ -182,7 +183,7 @@ let curLook=0;looks[0].tw=1;
 function setLook(n){curLook=n;looks.forEach((l,i)=>l.tw=i===n?1:0)}
 addEventListener('mc-look',e=>setLook(e.detail));setLook(MC.look||0);
 function updateMannequin(dt){looks.forEach(l=>{const sp=l.tw>l.w?1.6:2.6;l.w+=(l.tw-l.w)*Math.min(1,dt*sp);const e=l.w*l.w*(3-2*l.w);l.o.visible=l.w>.02;
-  l.o.position.y=(1-e)*(l.tw>0?.55:.35);l.o.scale.setScalar(.97+.03*e)});if(rainBoots)rainBoots.visible=curLook===0}
+  l.o.position.y=(1-e)*(l.tw>0?.55:.35);l.o.scale.setScalar(.97+.03*e)});if(rainBoots)rainBoots.visible=curLook===0;const on=Math.max(...looks.map(l=>l.w));form.scale.set(1-.2*on,1-.03*on,1-.32*on)}
 // a freestanding rail behind the form with real garments
 {const rail=new THREE.Group();rail.position.set(MAN.x-.2,0,MAN.z-1.7);groups[0].add(rail);
  [-.9,.9].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,1.75,10),brass);p.position.set(x,.875,0);rail.add(p);const f=new THREE.Mesh(new THREE.BoxGeometry(.04,.02,.5),brass);f.position.set(x,.01,0);rail.add(f)});

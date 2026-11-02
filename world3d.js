@@ -66,7 +66,7 @@ const PAL={tee:[0xf3efe7,0x2b2b2b,0xc9b79c,0x6e7f96,0xd9c9b0,0x8a3b2e],longsleev
 
 // ---------- room shell ----------
 const W=3.2,Z0=6,Z1=-24,H=3;
-const floorM=pbr('herringbone_parquet',1,0xc8a78a,{roughness:1});[floorM.map,floorM.normalMap,floorM.roughnessMap].forEach(t=>t.repeat.set(3,15));
+const floorM=pbr('herringbone_parquet',1,0xc8a78a,{roughness:1});[floorM.map,floorM.normalMap].forEach(t=>t&&t.repeat.set(3,15));
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(W*2,Z0-Z1),floorM);floor.rotation.x=-Math.PI/2;floor.position.z=(Z0+Z1)/2;floor.receiveShadow=true;scene.add(floor);
 const ceilM=new THREE.MeshStandardMaterial({color:0x2a2622,roughness:.95});
 const ceil=new THREE.Mesh(new THREE.PlaneGeometry(W*2,Z0-Z1),ceilM);ceil.rotation.x=Math.PI/2;ceil.position.set(0,H,(Z0+Z1)/2);scene.add(ceil);
@@ -365,7 +365,7 @@ function pathAt(t){const n=S.length-1,f=Math.floor(t),fr=t-f;const e=fr*fr*fr*(f
 pathAt(MC.t);camPos.copy(goalP);camTgt.copy(goalT);
 
 // ---------- post ----------
-let composer=null,gtao=null,bokeh=null;
+let usePost=false,composer=null,gtao=null,bokeh=null;
 function size(){const w=innerWidth,h=innerHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(composer)composer.setSize(w,h)}
 if(!mobile&&!Q.has('nopost')){composer=new EffectComposer(r);composer.addPass(new RenderPass(scene,cam));
   try{gtao=new GTAOPass(scene,cam,innerWidth/2,innerHeight/2);gtao.blendIntensity=.8;composer.addPass(gtao)}catch(e){gtao=null}
@@ -397,8 +397,8 @@ function frame(){const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;U.u
   if(groups[6].visible)updateMirror(dt);
   if(glass&&glass.isReflector)glass.visible=Math.abs(MC.t-6)<1.6;
   updateLazy();
-  composer?composer.render(dt):r.render(scene,cam);
-  acc+=dt;fc++;if(fc===60){const ms=acc/60*1000;window.__mcfps.push(1000/ms);
+  (composer&&usePost)?composer.render(dt):r.render(scene,cam);
+  acc+=dt;fc++;if(fc===60){const ms=acc/60*1000;window.__mcfps.push(1000/ms);if(composer&&!usePost&&ms<20)usePost=true;else if(usePost&&ms>45){usePost=false;composer=null}
     if(ms>26){slow++;if(slow>2&&gtao&&gtao.enabled){gtao.enabled=false;slow=0}else if(slow>2&&bokeh&&bokeh.enabled){bokeh.enabled=false;slow=0}else if(dpr>1){dpr=Math.max(1,dpr-.25);r.setPixelRatio(dpr);size()}}
     else if(ms<14&&dpr<maxDpr){slow=0;dpr=Math.min(maxDpr,dpr+.25);r.setPixelRatio(dpr);size()}acc=0;fc=0}
 }

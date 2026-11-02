@@ -85,11 +85,11 @@ main{position:relative;z-index:2}
 /* mobile: bottom sheets */
 @media(max-width:760px){
  .stop{min-height:150svh;align-items:flex-end;padding:90px 12px 20px}
- .panel{position:sticky;top:auto;bottom:12px;max-height:72svh;overflow:auto;border-radius:22px}
+ .panel{position:relative;top:auto;max-height:none;overflow:visible;border-radius:22px}
  .panel.right{margin-left:0}
  .stop.hero{padding-bottom:10svh}.scrollcue{display:none}
  .stop .phone-ui.sm{display:none}
- .panel{max-height:56svh}
+ .stop{min-height:115svh}
  .hero h1{font-size:44px}
  .hero .lede{font-size:15px}
 }

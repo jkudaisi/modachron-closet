@@ -304,13 +304,13 @@ let shopK=0,shopNext=0;
 function updateShop(dt,t){if(listedTag)listedTag.rotation.z=Math.sin(t*2.2)*.2;if(Math.abs(MC.t-5)<1.2&&t>shopNext){shopNext=t+2.6;shopK++;shopTex.userData.draw(shopTex.userData.x,shopK);shopTex.needsUpdate=true}}
 
 // ---------- stop 6: full-length mirror ----------
-const MIR=new THREE.Vector3(W-.12,0,-19.6);
+const MIR=new THREE.Vector3(W-.45,0,-19.9);
 const ringTex=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const T=new THREE.CanvasTexture(c);T.colorSpace=THREE.SRGBColorSpace;T.userData={x:c.getContext('2d')};return T})();
 function drawRing(v){const x=ringTex.userData.x;x.clearRect(0,0,256,256);x.lineWidth=14;x.lineCap='round';x.strokeStyle='rgba(255,255,255,.18)';x.beginPath();x.arc(128,128,96,0,7);x.stroke();
   x.strokeStyle='#FFBB00';x.beginPath();x.arc(128,128,96,-Math.PI/2,-Math.PI/2+Math.PI*2*v*.71);x.stroke();x.fillStyle='#fff';x.textAlign='center';x.font='900 72px Montserrat, sans-serif';x.fillText(String(Math.round(71*v)),128,146);
   x.font='600 18px Inter';x.fillStyle='#FFBB00';x.fillText('EXAMPLE',128,188);ringTex.needsUpdate=true}
 drawRing(0);
-const mir=new THREE.Group();mir.position.copy(MIR);mir.rotation.y=-Math.PI/2+.12;groups[6].add(mir);
+const mir=new THREE.Group();mir.position.copy(MIR);mir.rotation.y=-Math.PI/2+.75;groups[6].add(mir);
 let glass;
 {const fw=.9,fh=2.1;const frameM=walnutDark;
  [[0,fh+.04,fw+.12,.08],[0,.02,fw+.12,.06],[-(fw/2+.03),fh/2+.02,.06,fh+.08],[(fw/2+.03),fh/2+.02,.06,fh+.08]].forEach(([x,y,w,h])=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,.06),frameM);b.position.set(x,y,0);b.castShadow=true;mir.add(b)});
@@ -350,7 +350,7 @@ const S=[
  {c:[1.9,1.55,-6.4],o:[ISL.x,.55,ISL.z],s:-1},
  {c:[.6,1.7,-9.4],o:[-.6,1.75,-11.8],s:1},
  {c:[-1.2,1.6,-12.6],o:[SHOP.x,1.45,SHOP.z],s:-1},
- {c:[-1.2,1.55,-16.6],o:[MIR.x-.6,1.3,MIR.z],s:1},
+ {c:[-.9,1.55,-16.9],o:[MIR.x-.5,1.25,MIR.z+.2],s:1},
  {c:[.9,1.45,-18.6],o:[LOUNGE.x,1.0,LOUNGE.z],s:-1},
  {c:[0,6.2,7.5],o:[0,0,-8],s:0},
 ];

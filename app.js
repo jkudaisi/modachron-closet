@@ -3,19 +3,26 @@ const root=document.documentElement,lite=()=>root.classList.contains('lite');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 // smooth scroll
 let lenis=null;
-if(!reduced&&window.Lenis){lenis=new Lenis({lerp:.09});const raf=t=>{lenis.raf(t);requestAnimationFrame(raf)};requestAnimationFrame(raf);
+const coarse=matchMedia('(pointer: coarse)').matches||'ontouchstart' in window;
+if(!reduced&&!coarse&&window.Lenis){lenis=new Lenis({lerp:.09});const raf=t=>{lenis.raf(t);requestAnimationFrame(raf)};requestAnimationFrame(raf);
   document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();lenis.scrollTo(t,{offset:-10})}}));}
 // stop progress, shared with world.js
 const stops=[...document.querySelectorAll('.stop')];const prog=document.getElementById('prog');
 const MC=window.MC={stop:0,t:0,look:0};
 const stills=[...document.querySelectorAll('.stills i')];
-function measure(){const mid=scrollY+innerHeight*.5;let t=0;
-  for(let i=0;i<stops.length;i++){const r=stops[i],top=r.offsetTop,h=r.offsetHeight;
+let geo=[],vh0=innerHeight,lastW=innerWidth,maxS=1;
+function layout(){vh0=innerHeight;geo=stops.map(r=>{const b=r.getBoundingClientRect();return[b.top+scrollY,b.height]});maxS=Math.max(1,document.documentElement.scrollHeight-vh0)}
+let ticking=false;
+function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(()=>{ticking=false;measure()})}}
+function measure(){const mid=scrollY+vh0*.5;let t=0;
+  for(let i=0;i<stops.length;i++){const top=geo[i][0],h=geo[i][1];
     if(mid>=top&&mid<top+h){t=i+(mid-top)/h;break}if(i===stops.length-1&&mid>=top+h)t=stops.length}
   MC.t=Math.max(0,t-.5);MC.stop=Math.min(stops.length-1,Math.round(MC.t));
-  prog.style.width=(scrollY/(document.body.scrollHeight-innerHeight)*100)+'%';
+  prog.style.transform='scaleX('+Math.min(1,scrollY/maxS)+')';
   if(lite())stills.forEach((s,i)=>s.classList.toggle('on',i===MC.stop));}
-addEventListener('scroll',measure,{passive:true});addEventListener('resize',measure);measure();
+addEventListener('scroll',onScroll,{passive:true});
+addEventListener('resize',()=>{if(coarse&&innerWidth===lastW)return;lastW=innerWidth;layout();measure()});
+addEventListener('load',()=>{layout();measure()});layout();measure();
 // 3D toggle
 const tg=document.getElementById('toggle3d');
 const sync=()=>{tg.textContent=lite()?'3D off':'3D on';tg.setAttribute('aria-pressed',!lite())};sync();

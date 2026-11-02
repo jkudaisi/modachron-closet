@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ModaChron | Step into the closet that learns you</title>
+<meta name="description" content="ModaChron is your smart personal stylist. Outfits from your own wardrobe, tuned to the weather, your calendar and your taste.">
+<meta property="og:title" content="ModaChron | Your smart personal stylist">
+<meta property="og:description" content="Outfits from the clothes you already own, adapted to the weather, your calendar and your personal style.">
+<meta name="theme-color" content="#0e0e0e">
+<link rel="icon" href="img/logo.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>(function(){var q=location.search,l=/lite=1/.test(q)||localStorage.getItem('mc3d')==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches||(navigator.deviceMemory&&navigator.deviceMemory<=4&&!/lite=0/.test(q));try{var c=document.createElement('canvas');if(!(c.getContext('webgl2')||c.getContext('webgl')))l=true}catch(e){l=true}if(l)document.documentElement.classList.add('lite');})();</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"MobileApplication","name":"ModaChron","operatingSystem":"iOS, Android","applicationCategory":"LifestyleApplication","description":"Your smart personal stylist. Outfits from your own wardrobe, adapted to the weather, your calendar and your personal style.","url":"https://modachron.com/","sameAs":["https://apps.apple.com/us/app/modachron/id6751117375","https://play.google.com/store/apps/details?id=com.modachron.app","https://www.instagram.com/modachron/","https://x.com/ModaChron","https://www.linkedin.com/company/modachron/"]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="world" aria-hidden="true"></canvas>
+<div class="stills" aria-hidden="true"><i style="background-image:url(img/stills/s0.webp)"></i><i style="background-image:url(img/stills/s1.webp)"></i><i style="background-image:url(img/stills/s2.webp)"></i><i style="background-image:url(img/stills/s3.webp)"></i><i style="background-image:url(img/stills/s4.webp)"></i><i style="background-image:url(img/stills/s5.webp)"></i><i style="background-image:url(img/stills/s6.webp)"></i><i style="background-image:url(img/stills/s7.webp)"></i><i style="background-image:url(img/stills/s8.webp)"></i></div>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="ModaChron home"><img src="img/moda_white_logo.png" alt="" width="28" height="21"><span>ModaChron</span></a>
+  <nav aria-label="Primary"><a href="#learn">How it learns</a><a href="#weather">Weather</a><a href="#calendar">Calendar</a><a href="#modashop">ModaShop</a><a href="#fit">Fit Check</a><a href="#creators">Creators</a><a href="#faq">FAQ</a></nav>
+  <button class="toggle3d" id="toggle3d" type="button" aria-pressed="true">3D on</button>
+  <a class="btn btn-gold small" href="#download">Download</a>
+</header>
+<div class="progress" aria-hidden="true"><b id="prog"></b></div>
+<main id="main">
+<section class="stop hero" id="top" data-stop="0">
+  <div class="panel left">
+    <p class="kicker">Smart personal stylist</p>
+    <h1><span>Your closet,</span> <em>finally</em> <span>styled.</span></h1>
+    <p class="lede">ModaChron builds outfits from the clothes you already own, adapting to the weather, your calendar and your personal style. Your personal clothing stylist, powered by your wardrobe.</p>
+    <div class="chips" role="group" aria-label="Change today's conditions">
+      <span class="chips-l">Today:</span>
+      <button type="button" data-look="0" aria-pressed="true">Rain</button><button type="button" data-look="1" aria-pressed="false">Sunny</button><button type="button" data-look="2" aria-pressed="false">Cold</button><button type="button" data-look="3" aria-pressed="false">Evening plans</button>
+    </div>
+    <div class="stores">
+      <a href="https://apps.apple.com/us/app/modachron/id6751117375" target="_blank" rel="noopener"><img src="img/download_apple.png" alt="Download on the App Store" height="46"></a>
+      <a href="https://play.google.com/store/apps/details?id=com.modachron.app" target="_blank" rel="noopener"><img src="img/download_google.png" alt="Get it on Google Play" height="46"></a>
+    </div>
+    <p class="sr-only" id="lookDesc">The mannequin is wearing a rain-ready look.</p>
+  </div>
+  <p class="scrollcue" aria-hidden="true">Scroll to walk in</p>
+</section>
+
+<section class="stop learn" id="learn" data-stop="1"><div class="panel right">
+  <div class="learn-copy">
+    <p class="kicker">01 / How it learns</p>
+    <h2 >Swipe. It listens.</h2>
+    <p >Swipe right on outfits you love and left on the ones you don't. Every swipe is read against the pieces in that look, so ModaChron builds your closet identity: the colors you reach for, baggy or fitted, casual or formal.</p>
+    <p >The first few suggestions might miss. Over time it learns, until the first outfit of the day is the one you wear.</p>
+    <p class="note">Try the demo deck. It is an illustration of the idea, not your real profile.</p>
+  </div>
+  <div class="deck-wrap">
+    <div class="deck lite-only" id="deck" aria-live="polite"></div><p class="hint3d no-lite">Drag the top card on the table, or use the buttons.</p>
+    <div class="deck-btns">
+      <button class="round no" id="btnNo" aria-label="Swipe left, not for me">&#10005;</button>
+      <button class="round yes" id="btnYes" aria-label="Swipe right, love it">&#9829;</button>
+    </div>
+    <div class="profile" aria-label="Demo style profile">
+      <p class="kicker">Demo closet identity</p>
+      <div class="bar"><span>Casual</span><i><b id="pCasual"></b></i><span>Formal</span></div>
+      <div class="bar"><span>Relaxed</span><i><b id="pFit"></b></i><span>Fitted</span></div>
+      <div class="bar"><span>Neutral</span><i><b id="pColor"></b></i><span>Bold</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="stop" id="weather" data-stop="2"><div class="panel left">
+  <p class="kicker">02 / Weather smart</p>
+  <h2>Dressed for the day you're <em>actually</em> having.</h2>
+  <p>Recommendations adapt to current and forecasted weather, so rain and temperature are already handled.</p>
+  <div class="phone-ui sm" data-screen="weather" aria-label="ModaChron app home screen with a weather chip and today's outfit"></div>
+</div></section>
+
+<section class="stop" id="calendar" data-stop="3"><div class="panel right">
+  <p class="kicker">03 / Calendar integration</p>
+  <h2>Your week, <em>already planned.</em></h2>
+  <p>Outfits tailored to your upcoming events. Pre-plan looks for the week, an event or a trip.</p>
+  <div class="phone-ui sm" data-screen="calendar" aria-label="ModaChron calendar screen with an upcoming event and planned outfit"></div>
+</div></section>
+
+<section class="stop" id="wear" data-stop="4"><div class="panel left">
+  <p class="kicker">04 / Wear more of what you own</p>
+  <h2>No forgotten pieces at the <em>back of the closet.</em></h2>
+  <p>You don't need a big wardrobe. ModaChron remixes your core pieces in new ways and points out versatile gaps only when you're ready to shop, so what you buy next actually works with what you have.</p>
+  <div class="phone-ui sm" data-screen="home" aria-label="ModaChron home screen showing Today's Perfect Outfit"></div>
+</div></section>
+
+<section class="stop shop" id="modashop" data-stop="5"><div class="panel right wide">
+  <div class="shop-copy">
+    <p class="kicker">05 / ModaShop <span class="soon">Coming soon</span></p>
+    <h2 >Shop pieces picked for your closet, <em>and sell the ones you don't wear.</em></h2>
+    <p >ModaShop is ModaChron's built-in marketplace to buy and resell clothes. It shows you pieces that match the wardrobe you already own, not an endless feed.</p>
+    <ul class="feats">
+      <li><b>Picks, not browsing</b>Listings suggested because they fit your closet and style, on Home and as closet recommendations.</li>
+      <li><b>Sell what you don't wear</b>List straight from your closet. A Sell Review swipe deck helps you decide what to let go, and listed items get a Listed badge.</li>
+      <li><b>Offers</b>Buyers make offers, and sellers accept, decline or counter. Get notified when there's an offer, and when it's sold, shipped and delivered.</li>
+      <li><b>Easy to start</b>List before you set up payouts. When you see "You sold it!", set up how you get paid.</li>
+    </ul>
+    <p class="reveal tie">ModaShop learns your taste from your closet and your Home swipes, then suggests pieces that fill gaps and go with what you own. Your closet is where selling starts.</p>
+    <a class="btn btn-gold" href="#download">Get the app</a>
+  </div>
+  <div class="phone-ui sm" data-screen="shop" aria-label="ModaShop preview: closet item listed, Sell Review card, an offer on a listing, and the You sold it screen"></div>
+</div></section>
+
+<section class="stop fit" id="fit" data-stop="6"><div class="panel left wide">
+  <div>
+    <p class="kicker">06 / Fit Check</p>
+    <h2 >Rate the fit. <em>Climb the board.</em></h2>
+    <p >Upload a look and ModaChron scores it overall and across six categories, with strengths and things to watch. Add your score to the daily leaderboard, then track your fits and improve in the app.</p>
+    <a class="btn btn-gold" href="https://modachron.com/fit-analysis">Rate my fit</a>
+  </div>
+  <div class="fitcard" aria-label="Example fit score, illustration only">
+    <span class="ex">Example</span>
+    <div class="ring" id="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52"/><circle class="arc" cx="60" cy="60" r="52"/></svg><b id="ovr">71</b><small>Overall</small></div>
+    <ul class="subs">
+      <li><span>Proportion</span><i style="--v:68"></i><em>68</em></li>
+      <li><span>Color Harmony</span><i style="--v:76"></i><em>76</em></li>
+      <li><span>Cohesion</span><i style="--v:69"></i><em>69</em></li>
+      <li><span>Fit Presentation</span><i style="--v:78"></i><em>78</em></li>
+      <li><span>Focal Point</span><i style="--v:74"></i><em>74</em></li>
+      <li><span>Context Fit</span><i style="--v:60"></i><em>60</em></li>
+    </ul>
+    <div class="board"><p>Today's leaderboard <span>(sample)</span></p>
+      <ol><li><b>1</b>@sample_user_a<em>88</em></li><li><b>2</b>@sample_user_b<em>84</em></li><li><b>3</b>@your_handle<em>71</em></li></ol></div>
+  </div>
+</div></section>
+
+<section class="stop creators" id="creators" data-stop="7"><div class="panel right wide">
+  <div>
+    <p class="kicker">07 / Creator program</p>
+    <h2 >Become a ModaChron partner.</h2>
+    <p >Apply with your handle and platform, get reviewed, and start earning on every premium user you bring in. No minimum following, no upfront cost.</p>
+    <ol class="steps">
+      <li><b>01</b> Submit your application</li>
+      <li><b>02</b> Our team reviews fit and audience within 48 hours</li>
+      <li><b>03</b> Get your personal referral link and payout terms</li>
+    </ol>
+  </div>
+  <form class="apply" id="apply" novalidate>
+    <label>Full name<input id="cName" autocomplete="name" required></label>
+    <label>Handle<input id="cHandle" placeholder="@yourhandle" required></label>
+    <label>Platform<select id="cPlat">
+      <option value="tiktok">TikTok</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option><option value="x">X / Twitter</option><option value="pinterest">Pinterest</option><option value="facebook">Facebook</option><option value="snapchat">Snapchat</option><option value="twitch">Twitch</option><option value="linkedin">LinkedIn</option><option value="reddit">Reddit</option>
+    </select></label>
+    <label>Email<input id="cEmail" type="email" autocomplete="email" required></label>
+    <button class="btn btn-gold" type="submit">Submit application</button>
+    <p class="formmsg" id="formMsg" role="status"></p>
+    <p class="fine">Most applications are reviewed within 48 hours. By applying, you agree to the <a href="https://modachron.com/creators">Creator &amp; Influencer Program Terms</a>.</p>
+  </form>
+</div></section>
+
+<section class="stop download" id="download" data-stop="8"><div class="panel center">
+  <h2 class="big">Get dressed<br><em>smarter.</em></h2>
+  <div class="stores">
+    <a href="https://apps.apple.com/us/app/modachron/id6751117375" target="_blank" rel="noopener"><img src="img/download_apple.png" alt="Download on the App Store" height="52"></a>
+    <a href="https://play.google.com/store/apps/details?id=com.modachron.app" target="_blank" rel="noopener"><img src="img/download_google.png" alt="Get it on Google Play" height="52"></a>
+  </div>
+</div></section>
+
+<section class="faq" id="faq">
+  <p class="kicker">08 / FAQ</p>
+  <h2>Quick answers.</h2>
+  <details><summary>What does ModaChron do?</summary><p>ModaChron recommends outfits from your existing wardrobe using smart styling logic, weather data and your schedule, like a personal stylist in your pocket.</p></details>
+  <details><summary>How does ModaChron use weather and my calendar?</summary><p>The app checks local forecasts and upcoming events so outfit suggestions match temperature, rain and occasion, whether you are heading to work, traveling or staying in.</p></details>
+  <details><summary>Is ModaChron available on iPhone and Android?</summary><p>Yes. Download ModaChron on the <a href="https://apps.apple.com/us/app/modachron/id6751117375">App Store</a> or <a href="https://play.google.com/store/apps/details?id=com.modachron.app">Google Play</a> to start building outfits from your closet.</p></details>
+  <details><summary>Do I need a large wardrobe to get started?</summary><p>No. Many users start with a modest closet. ModaChron helps you remix core pieces in new ways and spot versatile gaps only when you are ready to shop.</p></details>
+  <details><summary>Where can I get help or read your policies?</summary><p>Visit <a href="https://modachron.com/app/support">app support</a> for help, or read our <a href="https://modachron.com/app/privacy">privacy policy</a> and <a href="https://modachron.com/app/terms">terms of service</a>.</p></details>
+</section>
+</main>
+<footer class="foot">
+  <div class="brand"><img src="img/moda_white_logo.png" alt="" width="28" height="21"><span>ModaChron</span></div>
+  <nav aria-label="Social">
+    <a href="https://www.instagram.com/modachron/" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://x.com/ModaChron" target="_blank" rel="noopener">X</a>
+    <a href="https://www.linkedin.com/company/modachron/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="mailto:contact@modachron.com">contact@modachron.com</a>
+  </nav>
+  <nav aria-label="Legal">
+    <a href="https://modachron.com/app/support">Support</a><a href="https://modachron.com/app/privacy">Privacy Policy</a><a href="https://modachron.com/app/terms">Terms of Service</a>
+  </nav>
+  <p>Copyright &copy; 2026 ModaChron</p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+<script type="module" src="world.js"></script>
+</body>
+</html>

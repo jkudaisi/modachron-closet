@@ -98,7 +98,7 @@ function hang(type,x,y,z,facing,col,chunk){const m=new THREE.Matrix4();QQ.setFro
 const rnd=(a)=>a[Math.floor(Math.random()*a.length)];
 const SKIPR=[[-3.6,-6.4],[-18.6,-20.6]];// window, mirror on right wall
 const PATTERN=['A','B','C','B','D','A','B','E'];
-const dens=mobile?.17:.125;
+const dens=mobile?.22:.125;
 const units=[];
 [-1,1].forEach(side=>{let u=0;for(let zc=Z0-.8;zc>Z1+.5;zc-=UW,u++){
   if(side>0&&SKIPR.some(([a,b])=>zc<a&&zc>b))continue;
@@ -143,7 +143,7 @@ function addHanger(g,t){if(OWNH[t])return;hangerGeo.forEach((hg,hi)=>{const h=ne
 function fillG(g,parts,col){g.children.filter(c=>c.userData.garm).forEach(c=>{g.remove(c);c.material.dispose()});
   parts.forEach(p=>{const m=new THREE.Mesh(p.geo,p.mat.clone());m.material.onBeforeCompile=p.mat.onBeforeCompile;m.material.customProgramCacheKey=p.mat.customProgramCacheKey;m.material.color.multiply(new THREE.Color(col));m.userData.garm=1;m.castShadow=!mobile;m.receiveShadow=true;g.add(m)})}
 function makeG(t,col=0xffffff,stop=-1,hanger=true){const g=new THREE.Group();g.userData={t,col,stop,hi:false};fillG(g,PARTS[t],col);if(hanger)addHanger(g,t);if(stop>=0)showcase.push(g);return g}
-function upgradeNear(){showcase.forEach(g=>{const u=g.userData;if(u.hi||u.loading||Math.abs(MC.t-u.stop)>1.6)return;u.loading=true;loadHi(u.t).then(p=>{fillG(g,p,u.col);u.hi=true})})}
+function upgradeNear(){if(mobile)return;showcase.forEach(g=>{const u=g.userData;if(u.hi||u.loading||Math.abs(MC.t-u.stop)>1.6)return;u.loading=true;loadHi(u.t).then(p=>{fillG(g,p,u.col);u.hi=true})})}
 const chunks=[];
 for(let c=0;c<9;c++){const g=new THREE.Group();scene.add(g);const ch={g,meshes:[],center:new THREE.Vector3()};chunks.push(ch);
   const slots=garmentSlots.filter(s=>s.chunk===c);if(!slots.length)continue;
@@ -175,7 +175,7 @@ const formBox=new THREE.Box3().setFromBufferAttribute(formGeo.attributes.positio
 const LOOKT=['coat','shirt','hoodie','party'];
 const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
   const kx=Math.max(1,fs.x*1.12/gs.x),kz=Math.max(1,fs.z*1.22/gs.z);inner.scale.set(kx,Math.max(1,kx*.92),kz);inner.position.y=formBox.max.y-.02+(t==='hoodie'?.14:0);o.add(inner);o.visible=false;man.add(o);
-  loadHi(t).then(p=>fillG(inner,p,0xffffff));return{o,w:0,tw:0}});
+  if(!mobile||i===0)loadHi(t).then(p=>fillG(inner,p,0xffffff));return{o,w:0,tw:0}});
 await loadHi('coat');
 // boots for rain look
 let rainBoots=null;loadGLB('models/props/rubber_boots.glb').then(o=>{const b=new THREE.Box3().setFromObject(o),sz=new THREE.Vector3();b.getSize(sz);const k=.32/Math.max(sz.x,sz.z);o.scale.setScalar(k);o.position.set(.42,-b.min.y*k,.25);o.rotation.y=-.6;man.add(o);rainBoots=o}).catch(()=>{});
@@ -395,7 +395,7 @@ function frame(){const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;U.u
   pts[0].position.set(0,H-.25,cam.position.z-2.5);pts[1].position.set(0,H-.25,cam.position.z-6);
   ceil.visible=dl.visible=MC.t<7.6;
   groups.forEach((g,i)=>g.visible=Math.abs(MC.t-i)<2.4||(i===0&&MC.t>7.3));
-  chunks.forEach(ch=>{const d=Math.abs(ch.center.z-cam.position.z);const vis=MC.t>7.3||d<(mobile?8:10);ch.g.visible=vis});upgradeNear();
+  chunks.forEach(ch=>{const d=Math.abs(ch.center.z-cam.position.z);const vis=MC.t>7.3||d<(mobile?6.5:10);ch.g.visible=vis});upgradeNear();
   if(groups[0].visible)updateMannequin(dt);
   if(groups[1].visible)updateCards(dt);
   if(groups[2].visible)updateWeather(dt,t);

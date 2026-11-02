@@ -359,7 +359,7 @@ const S=[
  {c:[1.9,1.55,-6.4],o:[ISL.x,.55,ISL.z],s:-1},
  {c:[.6,1.7,-9.4],o:[-.6,1.75,-11.8],s:1},
  {c:[-1.2,1.6,-12.6],o:[SHOP.x,1.45,SHOP.z],s:-1},
- {c:[-.9,1.55,-16.9],o:[MIR.x-.5,1.25,MIR.z+.2],s:1},
+ {c:[.1,1.55,-17.6],o:[MIR.x-.4,1.2,MIR.z+.1],s:1},
  {c:[.9,1.45,-18.6],o:[LOUNGE.x,1.0,LOUNGE.z],s:-1},
  {c:[0,6.2,7.5],o:[0,0,-8],s:0},
 ];
@@ -396,7 +396,7 @@ function frame(){const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;U.u
   pts[0].position.set(0,H-.25,cam.position.z-2.5);pts[1].position.set(0,H-.25,cam.position.z-6);
   ceil.visible=dl.visible=MC.t<7.6;
   groups.forEach((g,i)=>g.visible=Math.abs(MC.t-i)<2.4||(i===0&&MC.t>7.3));
-  chunks.forEach(ch=>{const d=Math.abs(ch.center.z-cam.position.z);const vis=MC.t>7.3||d<(mobile?6.5:10);ch.g.visible=vis});upgradeNear();
+  chunks.forEach(ch=>{const d=Math.abs(ch.center.z-cam.position.z);const vis=MC.t>7.3||d<(mobile?5.5:10);ch.g.visible=vis});upgradeNear();
   if(groups[0].visible)updateMannequin(dt);
   if(groups[1].visible)updateCards(dt);
   if(groups[2].visible)updateWeather(dt,t);

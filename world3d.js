@@ -412,5 +412,5 @@ function frame(){const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;U.u
     else if(ms<14&&dpr<maxDpr){slow=0;dpr=Math.min(maxDpr,dpr+.25);r.setPixelRatio(dpr);size()}acc=0;fc=0}
 }
 r.setAnimationLoop(()=>{if(!lost&&!document.hidden)frame()});
-window.__mc={r,scene,cam,S,camC,info:()=>({tris:r.info.render.triangles,calls:r.info.render.calls,geos:r.info.memory.geometries,tex:r.info.memory.textures})};
+window.__mc={r,scene,cam,S,camC,top3d:()=>topCard().userData.li,info:()=>({tris:r.info.render.triangles,calls:r.info.render.calls,geos:r.info.memory.geometries,tex:r.info.memory.textures})};
 }

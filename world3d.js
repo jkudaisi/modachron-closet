@@ -61,8 +61,8 @@ const brass=new THREE.MeshStandardMaterial({color:0xd9a441,metalness:1,roughness
 const chrome=new THREE.MeshStandardMaterial({color:0xcfc8bc,metalness:1,roughness:.18});
 const led=new THREE.MeshBasicMaterial({color:0xffd29a,toneMapped:false});
 const SF={coat:'wool_coat',trench:'tan_womans_coat',jacket:'modern_denim_jacket',denim:'denim_jacket',tee:'t-shirt_on_hanger',pants:'hangers_and_pants',hoodie:'hoodie',shirt:'free_shirt',dress:'woman_dress',party:'party_dress',slip:'long_evening_dress'};
-const OWNH={tee:1,pants:1};const HY={coat:-.05,trench:-.07,jacket:-.05,denim:-.05,hoodie:-.2,shirt:-.04,dress:-.02,party:-.03,slip:-.02,tee:0,pants:0};
-const PAL={coat:[0xffffff,0xd8d4cc,0xb8b4ac],trench:[0xffffff,0xe6ded2,0xcfc8bc],jacket:[0xffffff,0xd4dae2],denim:[0xffffff,0xc8ccd4],tee:[0xffffff,0xe9e4da,0x3a3a3a,0x9aa3ad,0xc9b89c,0x6b7a62,0x2f3440],pants:[0xffffff,0xd8d0c0,0x9a9a9a],hoodie:[0xffffff,0xb8bcc0,0x8a8f86,0xe0d8c8],shirt:[0xffffff,0xdfe6ee,0xece4d6,0xc8d2dc],dress:[0xffffff,0xe0e0e0],party:[0xffffff,0x9a9a9a],slip:[0xffffff,0xc8c0b0,0xa8ae9c,0x6a6660]};
+const OWNH={tee:1};const HY={coat:-.05,trench:-.07,jacket:-.05,denim:-.05,hoodie:-.2,shirt:-.04,dress:-.02,party:-.03,slip:-.02,tee:0,pants:-.01};
+const PAL={coat:[0xffffff,0xd8d4cc,0xb8b4ac],trench:[0xffffff,0xe6ded2,0xcfc8bc],jacket:[0xffffff,0xd4dae2],denim:[0xffffff,0xc8ccd4],tee:[0xeee6d4,0x2f3a55,0x5d6345,0xb08a5e,0x3a3a3a,0x9aa3ad,0xffffff],pants:[0xffffff,0xd8d0c0,0x9a9a9a],hoodie:[0xffffff,0x5d6345,0x3a4766,0xb08a5e],shirt:[0xffffff,0x3a4766,0x7a7f5a,0xc9a57a,0xeee6d4,0xb8c4d6],dress:[0xffffff,0xe0e0e0],party:[0xffffff,0x9a9a9a],slip:[0xffffff,0xc8c0b0,0xa8ae9c,0x6a6660]};
 
 // ---------- room shell ----------
 const W=3.2,Z0=6,Z1=-24,H=3;
@@ -173,7 +173,7 @@ const form=new THREE.Mesh(formGeo,formM);form.castShadow=true;man.add(form);
  const rug=new THREE.Mesh(new THREE.CircleGeometry(1.25,64),pbr('wool_boucle',3,0xd9cbb6,{roughness:1}));rug.rotation.x=-Math.PI/2;rug.position.y=.004;rug.receiveShadow=true;man.add(rug)}
 const formBox=new THREE.Box3().setFromBufferAttribute(formGeo.attributes.position);const formSh=formBox.max.y-.12;
 const LOOKT=['coat','shirt','hoodie','party'];
-const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
+const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();if(t==='coat'){const sh=makeG('shirt',0xeee6d4,-1,false);sh.position.y=formBox.max.y-.03;sh.scale.set(.8,.82,.85);o.add(sh);if(!mobile)loadHi('shirt').then(p=>fillG(sh,p,0xeee6d4))}const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
   const kx=Math.max(1,fs.x*1.12/gs.x),kz=Math.max(1,fs.z*1.22/gs.z);inner.scale.set(kx,Math.max(1,kx*.92),kz);inner.position.y=formBox.max.y-.02+(t==='hoodie'?.14:0);o.add(inner);o.visible=false;man.add(o);
   if(!mobile||i===0)loadHi(t).then(p=>fillG(inner,p,0xffffff));return{o,w:0,tw:0}});
 await loadHi('coat');
@@ -185,7 +185,7 @@ addEventListener('mc-look',e=>setLook(e.detail));setLook(MC.look||0);
 function updateMannequin(dt){looks.forEach(l=>{const sp=l.tw>l.w?1.6:2.6;l.w+=(l.tw-l.w)*Math.min(1,dt*sp);const e=l.w*l.w*(3-2*l.w);l.o.visible=l.w>.02;
   l.o.position.y=(1-e)*(l.tw>0?.55:.35);l.o.scale.setScalar(.97+.03*e)});if(rainBoots)rainBoots.visible=curLook===0;const on=Math.max(...looks.map(l=>l.w));form.scale.set(1-.2*on,1-.03*on,1-.32*on)}
 // a freestanding rail behind the form with real garments
-{const rail=new THREE.Group();rail.position.set(MAN.x-.2,0,MAN.z-1.7);groups[0].add(rail);
+{const rail=new THREE.Group();rail.position.set(mobile?1.5:2.05,0,MAN.z-.9);rail.rotation.y=-Math.PI/2+.35;groups[0].add(rail);
  [-.9,.9].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,1.75,10),brass);p.position.set(x,.875,0);rail.add(p);const f=new THREE.Mesh(new THREE.BoxGeometry(.04,.02,.5),brass);f.position.set(x,.01,0);rail.add(f)});
  const bar=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,1.84,10),brass);bar.rotation.z=Math.PI/2;bar.position.y=1.75;rail.add(bar);
  ['trench','tee','hoodie','jacket','shirt','slip'].forEach((t,i)=>{const m=makeG(t,0xffffff,0);m.position.set(-.75+i*.3,1.74,0);m.rotation.y=Math.PI/2+(Math.random()-.5)*.2;rail.add(m)})}
@@ -353,7 +353,7 @@ function updateLazy(){lazy.forEach(L=>{const near=Math.abs(MC.t-L.stop)<2.2;
 // ---------- camera path ----------
 const S=[
  {c:[0,1.5,6.3],o:[MAN.x,1.3,MAN.z],s:1},
- {c:[.4,1.65,1.6],o:[TABLE.x,1.0,TABLE.z],s:-1},
+ {c:[-.5,1.7,.9],o:[TABLE.x,.95,TABLE.z],s:-1},
  {c:[-.8,1.6,-2.2],o:[WIN.x,1.55,WIN.z+.3],s:1},
  {c:[1.9,1.55,-6.4],o:[ISL.x,.55,ISL.z],s:-1},
  {c:[.6,1.7,-9.4],o:[-.6,1.75,-11.8],s:1},
@@ -411,5 +411,5 @@ function frame(){const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;U.u
     else if(ms<14&&dpr<maxDpr){slow=0;dpr=Math.min(maxDpr,dpr+.25);r.setPixelRatio(dpr);size()}acc=0;fc=0}
 }
 r.setAnimationLoop(()=>{if(!lost&&!document.hidden)frame()});
-window.__mc={r,scene,info:()=>({tris:r.info.render.triangles,calls:r.info.render.calls,geos:r.info.memory.geometries,tex:r.info.memory.textures})};
+window.__mc={r,scene,cam,S,camC,info:()=>({tris:r.info.render.triangles,calls:r.info.render.calls,geos:r.info.memory.geometries,tex:r.info.memory.textures})};
 }

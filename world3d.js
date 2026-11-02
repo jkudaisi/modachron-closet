@@ -17,13 +17,13 @@ init();
 async function init(){
 const MC=window.MC||{t:0,stop:0,look:0};
 const cv=document.getElementById('world');
-const mobile=matchMedia('(max-width: 760px)').matches||matchMedia('(pointer: coarse)').matches;
 const Q=new URLSearchParams(location.search);
+const mobile=matchMedia('(max-width: 760px)').matches||matchMedia('(pointer: coarse)').matches;
 let r;
-try{r=new THREE.WebGLRenderer({canvas:cv,antialias:!mobile,powerPreference:'high-performance'})}catch(e){root.classList.add('lite');return}
+try{r=new THREE.WebGLRenderer({canvas:cv,antialias:!mobile&&!Q.has('q'),powerPreference:'high-performance'})}catch(e){root.classList.add('lite');return}
 const maxDpr=Math.min(devicePixelRatio,mobile?1.5:1.75);let dpr=maxDpr;r.setPixelRatio(dpr);
 r.outputColorSpace=THREE.SRGBColorSpace;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.0;
-r.shadowMap.enabled=!mobile;r.shadowMap.type=THREE.PCFSoftShadowMap;
+r.shadowMap.enabled=!mobile&&!Q.has('q');r.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x0d0b09);scene.fog=new THREE.Fog(0x0d0b09,10,24);
 const pm=new THREE.PMREMGenerator(r);
 scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.3;
@@ -54,8 +54,8 @@ function sway(m,amp=1){m.onBeforeCompile=s=>{s.uniforms.uTime=U.uTime;s.uniforms
    #endif
    transformed.x+=(sin(uTime*1.3+ph+position.y*2.)*0.006+uWind*0.025)*hem*${amp.toFixed(2)};
    transformed.z+=cos(uTime*1.1+ph*1.3)*0.005*hem*${amp.toFixed(2)};`)};m.customProgramCacheKey=()=>'sway'+amp;return m}
-const walnut=pbr('black_walnut_veneer_01',1.2,0xb08a6a,{roughness:1});
-const walnutDark=pbr('black_walnut_veneer_01',1.2,0x6a5040);
+const walnut=pbr('black_walnut_veneer_01',2.5,0x6e5444,{roughness:.55});
+const walnutDark=pbr('black_walnut_veneer_01',2.5,0x4a3830,{roughness:.5});
 const interior=new THREE.MeshStandardMaterial({color:0x17120e,roughness:.7});
 const brass=new THREE.MeshStandardMaterial({color:0xd9a441,metalness:1,roughness:.25});
 const chrome=new THREE.MeshStandardMaterial({color:0xcfc8bc,metalness:1,roughness:.18});
@@ -66,7 +66,7 @@ const PAL={tee:[0xf3efe7,0x2b2b2b,0xc9b79c,0x6e7f96,0xd9c9b0,0x8a3b2e],longsleev
 
 // ---------- room shell ----------
 const W=3.2,Z0=6,Z1=-24,H=3;
-const floorM=pbr('herringbone_parquet',1,0xc8a78a,{roughness:1});[floorM.map,floorM.normalMap].forEach(t=>t&&t.repeat.set(3,15));
+const floorM=pbr('herringbone_parquet',1,0x8c735f,{roughness:.6});[floorM.map,floorM.normalMap].forEach(t=>t&&t.repeat.set(3,15));
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(W*2,Z0-Z1),floorM);floor.rotation.x=-Math.PI/2;floor.position.z=(Z0+Z1)/2;floor.receiveShadow=true;scene.add(floor);
 const ceilM=new THREE.MeshStandardMaterial({color:0x2a2622,roughness:.95});
 const ceil=new THREE.Mesh(new THREE.PlaneGeometry(W*2,Z0-Z1),ceilM);ceil.rotation.x=Math.PI/2;ceil.position.set(0,H,(Z0+Z1)/2);scene.add(ceil);
@@ -161,7 +161,7 @@ const form=new THREE.Mesh(formGeo,formM);form.castShadow=true;man.add(form);
  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,.82,12),brass);pole.position.y=.41;man.add(pole);
  const base=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.035,40),walnutDark);base.position.y=.018;base.castShadow=true;man.add(base);
  const rug=new THREE.Mesh(new THREE.CircleGeometry(1.25,64),pbr('wool_boucle',3,0xd9cbb6,{roughness:1}));rug.rotation.x=-Math.PI/2;rug.position.y=.004;rug.receiveShadow=true;man.add(rug)}
-const LOOKMAT=[['caban',0x4a5568],['cotton_jersey',0xf1ece2],['knitted_fleece',0x8a8f86],['rough_linen',0x1e1e22]];
+const LOOKMAT=[['caban',0x9aa0a8],['cotton_jersey',0xf1ece2],['knitted_fleece',0x8a8f86],['rough_linen',0x1e1e22]];
 const looks=[];
 await Promise.all([0,1,2,3].map(async i=>{const o=await loadGLB(`models/man/look${i}.glb`);const m=pbr(LOOKMAT[i][0],2.2,LOOKMAT[i][1],{side:THREE.DoubleSide,roughness:1});
   o.traverse(c=>{if(c.isMesh){c.material=m;c.castShadow=true;c.receiveShadow=true}});o.visible=false;man.add(o);looks[i]={o,w:0,tw:0}}));

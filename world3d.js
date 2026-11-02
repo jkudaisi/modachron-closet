@@ -54,19 +54,19 @@ function sway(m,amp=1){m.onBeforeCompile=s=>{s.uniforms.uTime=U.uTime;s.uniforms
    #endif
    transformed.x+=(sin(uTime*1.3+ph+position.y*2.)*0.006+uWind*0.025)*hem*${amp.toFixed(2)};
    transformed.z+=cos(uTime*1.1+ph*1.3)*0.005*hem*${amp.toFixed(2)};`)};m.customProgramCacheKey=()=>'sway'+amp;return m}
-const walnut=pbr('black_walnut_veneer_01',2.5,0x6e5444,{roughness:.55});
-const walnutDark=pbr('black_walnut_veneer_01',2.5,0x4a3830,{roughness:.5});
+const walnut=pbr('black_walnut_veneer_01',2.5,0x8a8078,{roughness:.55});
+const walnutDark=pbr('black_walnut_veneer_01',2.5,0x5a524c,{roughness:.5});
 const interior=new THREE.MeshStandardMaterial({color:0x17120e,roughness:.7});
 const brass=new THREE.MeshStandardMaterial({color:0xd9a441,metalness:1,roughness:.25});
 const chrome=new THREE.MeshStandardMaterial({color:0xcfc8bc,metalness:1,roughness:.18});
 const led=new THREE.MeshBasicMaterial({color:0xffd29a,toneMapped:false});
-const FABRIC={tee:['cotton_jersey',2.2],longsleeve:['jersey_melange',2.2],hoodie:['knitted_fleece',2],jacket:['denim_fabric',2],coat:['caban',2],dress:['rough_linen',2.2],skirt:['ribbed_corduroy',2.4],pants:['denim_fabric',2]};
-const fabMat={};for(const k in FABRIC){fabMat[k]=sway(pbr(FABRIC[k][0],FABRIC[k][1],0xffffff,{side:THREE.DoubleSide,roughness:1}),k==='coat'||k==='jacket'?.5:1)}
-const PAL={tee:[0xf3efe7,0x2b2b2b,0xc9b79c,0x6e7f96,0xd9c9b0,0x8a3b2e],longsleeve:[0xbfb6a8,0x3d4a5c,0xe8e2d6,0x5a6b4f],hoodie:[0x9a9490,0x2f3b2f,0xd8cdb8,0x3a3a40],jacket:[0x8fa3c0,0x3b4a63,0x2a2a2e,0xc9b48a],coat:[0x6b5a48,0x2d3440,0x1d1d1f,0xb9a48a,0x5a2330],dress:[0x1c1c1c,0xd8c4a8,0x6b2433,0x9aa38a],skirt:[0x6b4a34,0x2b2b2b,0xc9a86b],pants:[0x3b4a63,0x2a2a2e,0x8fa3c0,0xb9ad98]};
+const SF={coat:'wool_coat',trench:'tan_womans_coat',jacket:'modern_denim_jacket',denim:'denim_jacket',tee:'t-shirt_on_hanger',pants:'hangers_and_pants',hoodie:'hoodie',shirt:'free_shirt',dress:'woman_dress',party:'party_dress',slip:'long_evening_dress'};
+const OWNH={tee:1,pants:1};const HY={coat:-.05,trench:-.07,jacket:-.05,denim:-.05,hoodie:-.2,shirt:-.04,dress:-.02,party:-.03,slip:-.02,tee:0,pants:0};
+const PAL={coat:[0xffffff,0xd8d4cc,0xb8b4ac],trench:[0xffffff,0xe6ded2,0xcfc8bc],jacket:[0xffffff,0xd4dae2],denim:[0xffffff,0xc8ccd4],tee:[0xffffff,0xe9e4da,0x3a3a3a,0x9aa3ad,0xc9b89c,0x6b7a62,0x2f3440],pants:[0xffffff,0xd8d0c0,0x9a9a9a],hoodie:[0xffffff,0xb8bcc0,0x8a8f86,0xe0d8c8],shirt:[0xffffff,0xdfe6ee,0xece4d6,0xc8d2dc],dress:[0xffffff,0xe0e0e0],party:[0xffffff,0x9a9a9a],slip:[0xffffff,0xc8c0b0,0xa8ae9c,0x6a6660]};
 
 // ---------- room shell ----------
 const W=3.2,Z0=6,Z1=-24,H=3;
-const floorM=pbr('herringbone_parquet',1,0x8c735f,{roughness:.6});[floorM.map,floorM.normalMap].forEach(t=>t&&t.repeat.set(3,15));
+const floorM=pbr('herringbone_parquet',1,0x9a9088,{roughness:.6});[floorM.map,floorM.normalMap].forEach(t=>t&&t.repeat.set(3,15));
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(W*2,Z0-Z1),floorM);floor.rotation.x=-Math.PI/2;floor.position.z=(Z0+Z1)/2;floor.receiveShadow=true;scene.add(floor);
 const ceilM=new THREE.MeshStandardMaterial({color:0x2a2622,roughness:.95});
 const ceil=new THREE.Mesh(new THREE.PlaneGeometry(W*2,Z0-Z1),ceilM);ceil.rotation.x=Math.PI/2;ceil.position.set(0,H,(Z0+Z1)/2);scene.add(ceil);
@@ -113,9 +113,9 @@ const units=[];
   M4.makeTranslation(x,.06,zc);addPart('shelf',G.shelf,walnut,M4);
   M4.makeTranslation(inner+side*.02,UH-.04,zc);addPart('led',G.ledbar,led,M4);
   const rodAt=(y)=>{M4.makeRotationX(Math.PI/2).setPosition(x,y,zc);addPart('rod',G.rod,chrome,M4)};
-  if(type==='A'){rodAt(2.05);const ty=['coat','dress','coat','dress'];for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens*1.1)hang(rnd(ty),x,2.04,z,facing,rnd(PAL[ty[0]]),chunk)}
+  if(type==='A'){rodAt(2.05);const ty=['coat','trench','slip','dress','party','coat'];for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens*1.1){const t=rnd(ty);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}}
   if(type==='B'){rodAt(2.05);rodAt(1.05);M4.makeTranslation(x,1.6,zc);addPart('shelf',G.shelf,walnut,M4);
-    const up=['tee','longsleeve','hoodie','jacket'],lo=['pants','skirt'];
+    const up=['tee','shirt','hoodie','jacket','denim','tee'],lo=['pants','pants','shirt'];
     for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens){const t=rnd(up);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}
     for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens*1.2){const t=rnd(lo);hang(t,x,1.04,z,facing,rnd(PAL[t]),chunk)}}
   if(type==='C'){for(let s=0;s<6;s++){const y=.42+s*.36;M4.makeTranslation(x,y,zc);addPart('shelf',G.shelf,walnut,M4);
@@ -125,23 +125,33 @@ const units=[];
       for(const dz of[-.24,.24])units.push({shoe:true,x:x+side*.03,y:y+.05,z:zc+dz,side});}
     for(const dz of[-.25,.25]){M4.makeTranslation(x,UH-.09,zc+dz);addPart('sbox',G.shoebox,boxM,M4)}}
   if(type==='E'){for(let s=0;s<4;s++){M4.makeTranslation(inner+side*.02,.2+s*.24,zc);addPart('drawer',G.drawer,walnut,M4);M4.makeTranslation(inner-side*.005,.24+s*.24,zc);addPart('handle',G.handle,brass,M4)}
-    M4.makeTranslation(x,1.08,zc);addPart('shelf',G.shelf,walnut,M4);rodAt(2.05);for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens){const t=rnd(['tee','longsleeve']);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}}
+    M4.makeTranslation(x,1.08,zc);addPart('shelf',G.shelf,walnut,M4);rodAt(2.05);for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens){const t=rnd(['tee','shirt']);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}}
 }});
 flushParts();
 
 // garments: per chunk InstancedMeshes with hi/lo geometry
-const TYPES=Object.keys(FABRIC);const GEO={},GEOLO={};
-await Promise.all(TYPES.map(async t=>{GEO[t]=firstGeo(await loadGLB(`models/garments/${t}.glb`));GEOLO[t]=firstGeo(await loadGLB(`models/garments/${t}_lo.glb`))}));
+const TYPES=Object.keys(SF);
 const hangerGLB=await loadGLB('models/props/hanger.glb');const hangerGeo=[];hangerGLB.traverse(m=>m.isMesh&&hangerGeo.push(m.geometry));
 const hangerWood=walnutDark;
+function bake(o,swayAmp){o.updateMatrixWorld(true);const parts=[];o.traverse(m=>{if(!m.isMesh)return;const g=m.geometry.clone();g.applyMatrix4(m.matrixWorld);
+  const mt=m.material.clone();mt.side=THREE.DoubleSide;mt.envMapIntensity=.8;if(mt.map)mt.map.anisotropy=4;sway(mt,swayAmp);parts.push({geo:g,mat:mt})});return parts}
+const PARTS={},HI={};
+await Promise.all(TYPES.map(async t=>{PARTS[t]=bake(await loadGLB(`models/sf/${SF[t]}_lo.glb`),t==='coat'||t==='trench'?.5:1)}));
+function loadHi(t){if(!HI[t])HI[t]=loadGLB(`models/sf/${SF[t]}.glb`).then(o=>bake(o,t==='coat'||t==='trench'?.5:1));return HI[t]}
+const showcase=[];
+function addHanger(g,t){if(OWNH[t])return;hangerGeo.forEach((hg,hi)=>{const h=new THREE.Mesh(hg,hi?chrome:hangerWood);h.position.y=HY[t];g.add(h)})}
+function fillG(g,parts,col){g.children.filter(c=>c.userData.garm).forEach(c=>{g.remove(c);c.material.dispose()});
+  parts.forEach(p=>{const m=new THREE.Mesh(p.geo,p.mat.clone());m.material.onBeforeCompile=p.mat.onBeforeCompile;m.material.customProgramCacheKey=p.mat.customProgramCacheKey;m.material.color.multiply(new THREE.Color(col));m.userData.garm=1;m.castShadow=!mobile;m.receiveShadow=true;g.add(m)})}
+function makeG(t,col=0xffffff,stop=-1,hanger=true){const g=new THREE.Group();g.userData={t,col,stop,hi:false};fillG(g,PARTS[t],col);if(hanger)addHanger(g,t);if(stop>=0)showcase.push(g);return g}
+function upgradeNear(){showcase.forEach(g=>{const u=g.userData;if(u.hi||u.loading||Math.abs(MC.t-u.stop)>1.6)return;u.loading=true;loadHi(u.t).then(p=>{fillG(g,p,u.col);u.hi=true})})}
 const chunks=[];
 for(let c=0;c<9;c++){const g=new THREE.Group();scene.add(g);const ch={g,meshes:[],center:new THREE.Vector3()};chunks.push(ch);
   const slots=garmentSlots.filter(s=>s.chunk===c);if(!slots.length)continue;
   let zs=0;slots.forEach(s=>zs+=s.m.elements[14]);ch.center.set(0,1.5,zs/slots.length);
-  TYPES.forEach(t=>{const L=slots.filter(s=>s.type===t);if(!L.length)return;const im=new THREE.InstancedMesh(GEO[t],fabMat[t],L.length);
-    L.forEach((s,i)=>{im.setMatrixAt(i,s.m);im.setColorAt(i,new THREE.Color(s.col))});im.receiveShadow=true;g.add(im);ch.meshes.push({im,t})});
-  // hangers
-  hangerGeo.forEach((hg,hi)=>{const im=new THREE.InstancedMesh(hg,hi===0?hangerWood:chrome,slots.length);slots.forEach((s,i)=>{const m=s.m.clone();m.multiply(new THREE.Matrix4().makeTranslation(0,.0,0));im.setMatrixAt(i,m)});g.add(im)})}
+  TYPES.forEach(t=>{const L=slots.filter(s=>s.type===t);if(!L.length)return;PARTS[t].forEach(p=>{const im=new THREE.InstancedMesh(p.geo,p.mat,L.length);
+    L.forEach((s,i)=>{im.setMatrixAt(i,s.m);im.setColorAt(i,new THREE.Color(s.col))});im.receiveShadow=true;g.add(im)})});
+  const HS=slots.filter(s=>!OWNH[s.type]);
+  hangerGeo.forEach((hg,hi)=>{const im=new THREE.InstancedMesh(hg,hi===0?hangerWood:chrome,HS.length);HS.forEach((s,i)=>{const m=s.m.clone();m.multiply(new THREE.Matrix4().makeTranslation(0,HY[s.type],0));im.setMatrixAt(i,m)});g.add(im)})}
 // shoes on D shelves
 loadGLB('models/props/rubber_boots.glb').then(o=>{const L=units.filter(u=>u.shoe);const subs=[];o.updateMatrixWorld(true);o.traverse(m=>m.isMesh&&subs.push(m));
   const b=new THREE.Box3().setFromObject(o),sz=new THREE.Vector3();b.getSize(sz);const k=.3/Math.max(sz.x,sz.z);
@@ -161,10 +171,11 @@ const form=new THREE.Mesh(formGeo,formM);form.castShadow=true;man.add(form);
  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,.82,12),brass);pole.position.y=.41;man.add(pole);
  const base=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.035,40),walnutDark);base.position.y=.018;base.castShadow=true;man.add(base);
  const rug=new THREE.Mesh(new THREE.CircleGeometry(1.25,64),pbr('wool_boucle',3,0xd9cbb6,{roughness:1}));rug.rotation.x=-Math.PI/2;rug.position.y=.004;rug.receiveShadow=true;man.add(rug)}
-const LOOKMAT=[['caban',0x9aa0a8],['cotton_jersey',0xf1ece2],['knitted_fleece',0x8a8f86],['rough_linen',0x1e1e22]];
-const looks=[];
-await Promise.all([0,1,2,3].map(async i=>{const o=await loadGLB(`models/man/look${i}.glb`);const m=pbr(LOOKMAT[i][0],2.2,LOOKMAT[i][1],{side:THREE.DoubleSide,roughness:1});
-  o.traverse(c=>{if(c.isMesh){c.material=m;c.castShadow=true;c.receiveShadow=true}});o.visible=false;man.add(o);looks[i]={o,w:0,tw:0}}));
+const formBox=new THREE.Box3().setFromBufferAttribute(formGeo.attributes.position);const formSh=formBox.max.y-.12;
+const LOOKT=['coat','shirt','hoodie','party'];
+const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();const inner=makeG(t,0xffffff,-1,false);inner.position.y=formSh-HY[t];inner.scale.set(1.06,1,1.18);o.add(inner);o.visible=false;man.add(o);
+  loadHi(t).then(p=>fillG(inner,p,0xffffff));return{o,w:0,tw:0}});
+await loadHi('coat');
 // boots for rain look
 let rainBoots=null;loadGLB('models/props/rubber_boots.glb').then(o=>{const b=new THREE.Box3().setFromObject(o),sz=new THREE.Vector3();b.getSize(sz);const k=.32/Math.max(sz.x,sz.z);o.scale.setScalar(k);o.position.set(.42,-b.min.y*k,.25);o.rotation.y=-.6;man.add(o);rainBoots=o}).catch(()=>{});
 let curLook=0;looks[0].tw=1;
@@ -176,8 +187,7 @@ function updateMannequin(dt){looks.forEach(l=>{const sp=l.tw>l.w?1.6:2.6;l.w+=(l
 {const rail=new THREE.Group();rail.position.set(MAN.x-.2,0,MAN.z-1.7);groups[0].add(rail);
  [-.9,.9].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,1.75,10),brass);p.position.set(x,.875,0);rail.add(p);const f=new THREE.Mesh(new THREE.BoxGeometry(.04,.02,.5),brass);f.position.set(x,.01,0);rail.add(f)});
  const bar=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,1.84,10),brass);bar.rotation.z=Math.PI/2;bar.position.y=1.75;rail.add(bar);
- ['coat','tee','hoodie','dress','jacket','longsleeve'].forEach((t,i)=>{const m=new THREE.Mesh(GEO[t],fabMat[t].clone());m.material.color.set(PAL[t][i%PAL[t].length]);m.position.set(-.75+i*.3,1.74,0);m.rotation.y=Math.PI/2+(Math.random()-.5)*.2;m.receiveShadow=true;m.castShadow=!mobile;rail.add(m);
-  hangerGeo.forEach((hg,hi)=>{const h=new THREE.Mesh(hg,hi?chrome:hangerWood);h.position.copy(m.position);h.rotation.copy(m.rotation);rail.add(h)})})}
+ ['trench','tee','hoodie','jacket','shirt','slip'].forEach((t,i)=>{const m=makeG(t,0xffffff,0);m.position.set(-.75+i*.3,1.74,0);m.rotation.y=Math.PI/2+(Math.random()-.5)*.2;rail.add(m)})}
 
 // ---------- stop 1: 3D swipe deck on a walnut table ----------
 const TABLE=new THREE.Vector3(mobile?-.6:-1.3,0,-1.2);
@@ -229,9 +239,8 @@ pg.setAttribute('position',new THREE.BufferAttribute(pp,3));const ptM=new THREE.
 const shaft=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.4,4,24,1,true),new THREE.MeshBasicMaterial({color:0xffd89a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
 shaft.position.set(WIN.x-1.8,.9,WIN.z);shaft.rotation.z=-Math.PI/2.5;groups[2].add(shaft);
 // garment on a wall hook beside the window, swaps with weather
-const wxT=[['coat',0x4a5568],['tee',0xf1ece2],['hoodie',0x8a8f86],['dress',0x1e1e22]];
-const wxG=wxT.map(([t,c])=>{const m=new THREE.Mesh(GEO[t],fabMat[t].clone());m.material.color.set(c);m.position.set(W-.22,2.0,WIN.z+1.75);m.rotation.y=-Math.PI/2+.5;m.castShadow=!mobile;groups[2].add(m);
-  hangerGeo.forEach((hg,hi)=>{const h=new THREE.Mesh(hg,hi?chrome:hangerWood);m.add(h)});return m});
+const wxT=[['trench',0xffffff],['tee',0xf1ece2],['coat',0xffffff],['party',0xffffff]];
+const wxG=wxT.map(([t,c])=>{const m=makeG(t,c,2);m.position.set(W-.22,2.0,WIN.z+1.75);m.rotation.y=-Math.PI/2+.5;groups[2].add(m);return m});
 {const hk=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.25,8),brass);hk.rotation.z=Math.PI/2;hk.position.set(W-.12,2.1,WIN.z+1.75);groups[2].add(hk)}
 let wxShown=0;
 function updateWeather(dt,t){const near=Math.abs(MC.t-2)<1.2;const target=near?Math.floor((t/3.2)%4):0;
@@ -271,13 +280,12 @@ function updateCalendar(dt,t){const near=Math.abs(MC.t-3)<1.2;if(near&&t>calNext
   drawers.forEach((d,i)=>{d.position.z+=(((near&&calK%4===i)?.78:.38)-d.position.z)*Math.min(1,dt*3)})}
 
 // ---------- stop 4: wear what you own (pieces slide off the wall rail) ----------
-const WEAR=[{t:'jacket',c:0x8fa3c0},{t:'tee',c:0xf3efe7},{t:'pants',c:0x3b4a63}];
-const wearG=WEAR.map((w,i)=>{const m=new THREE.Mesh(GEO[w.t],fabMat[w.t].clone());m.material.color.set(w.c);m.material.emissive=new THREE.Color(0);m.castShadow=!mobile;groups[4].add(m);
-  hangerGeo.forEach((hg,hi)=>m.add(new THREE.Mesh(hg,hi?chrome:hangerWood)));
+const WEAR=[{t:'denim',c:0xffffff},{t:'tee',c:0xf3efe7},{t:'pants',c:0xffffff}];
+const wearG=WEAR.map((w,i)=>{const m=makeG(w.t,w.c,4);groups[4].add(m);
   m.userData.home=new THREE.Vector3(-W+DEPTH/2,i===2?1.04:2.04,-12.2-i*.35);m.userData.front=new THREE.Vector3(-1.1+i*.55,i===2?1.55:2.05,-11.6);return m});
 const wearRail=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,1.9,10),brass);wearRail.rotation.z=Math.PI/2;wearRail.position.set(-.55,2.07,-11.6);groups[4].add(wearRail);
 function updateWear(dt){const w=THREE.MathUtils.smoothstep(1-Math.abs(MC.t-4),0,.55);wearRail.scale.set(1,Math.max(.001,w),1);wearRail.visible=w>.05;
-  wearG.forEach((m,i)=>{m.position.lerpVectors(m.userData.home,m.userData.front,w);m.rotation.y=THREE.MathUtils.lerp(Math.PI/2,0,w);m.material.emissive.setRGB(.05*w,.035*w,0)})}
+  wearG.forEach((m,i)=>{m.position.lerpVectors(m.userData.home,m.userData.front,w);m.rotation.y=THREE.MathUtils.lerp(Math.PI/2,0,w);})}
 
 // ---------- stop 5: ModaShop rail ----------
 const SHOP=new THREE.Vector3(mobile?-.2:.6,0,-15.6);
@@ -293,9 +301,8 @@ const shopTex=screenTex((x,k)=>{x.fillStyle='#232323';x.fillRect(0,0,256,520);x.
  [-.95,.95].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,1.9,10),brass);p.position.set(x,.95,0);base.add(p);const f=new THREE.Mesh(new THREE.BoxGeometry(.04,.02,.55),brass);f.position.set(x,.01,0);base.add(f)});
  const bar=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,1.94,10),brass);bar.rotation.z=Math.PI/2;bar.position.y=1.9;base.add(bar);
  const sign=new THREE.Mesh(new THREE.PlaneGeometry(.7,.35),new THREE.MeshBasicMaterial({map:signTex([['ModaShop','900 84px Montserrat, sans-serif',120],['COMING SOON','800 44px Montserrat, sans-serif',200]]),toneMapped:false}));sign.position.set(0,2.25,0);base.add(sign);
- const rail=[['jacket',0x8fa3c0],['tee',0xd8c7a3],['coat',0x4a5568],['skirt',0x5a2330],['hoodie',0x2f6b47],['dress',0xd8c4a8]];
- rail.forEach(([t,c],i)=>{const m=new THREE.Mesh(GEO[t],fabMat[t].clone());m.material.color.set(c);m.position.set(-.8+i*.32,1.89,0);m.rotation.y=Math.PI/2+(Math.random()-.5)*.2;m.castShadow=!mobile;base.add(m);
-  hangerGeo.forEach((hg,hi)=>{const h=new THREE.Mesh(hg,hi?chrome:hangerWood);h.position.copy(m.position);h.rotation.copy(m.rotation);base.add(h)});
+ const rail=[['jacket',0xffffff],['tee',0xd8c7a3],['coat',0xffffff],['slip',0xa8ae9c],['hoodie',0xb8bcc0],['dress',0xffffff]];
+ rail.forEach(([t,c],i)=>{const m=makeG(t,c,5);m.position.set(-.8+i*.32,1.89,0);m.rotation.y=Math.PI/2+(Math.random()-.5)*.2;base.add(m);
   if(i===2){listedTag=new THREE.Group();const tag=new THREE.Mesh(new THREE.PlaneGeometry(.12,.055),new THREE.MeshBasicMaterial({map:signTex([['Listed','900 120px Montserrat, sans-serif',170]],512,240),toneMapped:false,side:THREE.DoubleSide}));tag.position.y=-.05;listedTag.add(tag);
    listedTag.position.set(m.position.x,1.82,.2);base.add(listedTag)}});
  const sp=phone(shopTex);sp.position.set(1.25,1.25,.15);sp.rotation.y=-.3;sp.scale.setScalar(2.4);base.add(sp);
@@ -387,7 +394,7 @@ function frame(){const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;U.u
   pts[0].position.set(0,H-.25,cam.position.z-2.5);pts[1].position.set(0,H-.25,cam.position.z-6);
   ceil.visible=dl.visible=MC.t<7.6;
   groups.forEach((g,i)=>g.visible=Math.abs(MC.t-i)<2.4||(i===0&&MC.t>7.3));
-  chunks.forEach(ch=>{const d=Math.abs(ch.center.z-cam.position.z);const vis=MC.t>7.3||d<(mobile?8:10);ch.g.visible=vis;if(vis){const lo=d>(mobile?3:4)||MC.t>7.3;ch.meshes.forEach(m=>{const g=lo?GEOLO[m.t]:GEO[m.t];if(m.im.geometry!==g)m.im.geometry=g})}});
+  chunks.forEach(ch=>{const d=Math.abs(ch.center.z-cam.position.z);const vis=MC.t>7.3||d<(mobile?8:10);ch.g.visible=vis});upgradeNear();
   if(groups[0].visible)updateMannequin(dt);
   if(groups[1].visible)updateCards(dt);
   if(groups[2].visible)updateWeather(dt,t);

@@ -46,21 +46,23 @@ const prof={casual:0,fit:0,color:0};
 function setBars(){const p=v=>50+Math.max(-1,Math.min(1,v/3))*45+'%';
   document.getElementById('pCasual').style.left=p(prof.casual);document.getElementById('pFit').style.left=p(prof.fit);document.getElementById('pColor').style.left=p(prof.color)}
 MC.apply=(L,dir)=>{const s=dir>0?1:-1;prof.casual+=L.casual*s;prof.fit+=L.fit*s;prof.color+=L.color*s;setBars()};setBars();
-// 2D deck (lite mode only)
+// 2D deck in the panel, kept in sync with the 3D table deck
 const deck=document.getElementById('deck');let i=0;
 function make(k){const L=looks[k%looks.length],el=document.createElement('div');el.className='card';
   el.innerHTML='<img alt="" draggable="false" src="img/'+L.img+'.webp"><span class="shade"></span><span class="stamp l">LOVE</span><span class="stamp r">NOPE</span><span class="tag"></span><span class="sub"></span>';
   el.querySelector('.tag').textContent=L.n;el.querySelector('.sub').textContent=L.s;el.setAttribute('aria-label','Demo look: '+L.n);el._l=L;return el}
-function fill(){while(deck.children.length<3)deck.prepend(make(i++));
-  [...deck.children].forEach((c,j,a)=>{const d=a.length-1-j;c.style.transform=`translateY(${d*10}px) scale(${1-d*.04})`;c.style.transition='transform .4s'});bind(deck.lastElementChild)}
-function swipe2d(el,dir){MC.apply(el._l,dir);el.style.transition='transform .45s ease-in,opacity .45s';el.style.transform=`translateX(${dir*140}%) rotate(${dir*25}deg)`;el.style.opacity=0;setTimeout(()=>{el.remove();fill()},420)}
+const liveCards=()=>[...deck.children].filter(c=>!c._gone);
+function fill(){while(liveCards().length<3)deck.prepend(make(i++));
+  liveCards().forEach((c,j,a)=>{const d=a.length-1-j;c.style.transform=`translateY(${d*10}px) scale(${1-d*.04})`;c.style.transition='transform .4s'});bind(liveCards().pop())}
+function swipe2d(el,dir){el._gone=1;el.style.transition='transform .45s ease-in,opacity .45s';el.style.transform=`translateX(${dir*140}%) rotate(${dir*25}deg)`;el.style.opacity=0;fill();setTimeout(()=>el.remove(),450)}
+MC.swipe=(dir,from)=>{const top=liveCards().pop();if(!top)return;MC.apply(top._l,dir);swipe2d(top,dir);if(from!=='3d'&&!lite())dispatchEvent(new CustomEvent('mc-swipe',{detail:dir}))};
 function bind(el){if(el._b)return;el._b=1;let sx=0,dx=0,down=false;
-  el.addEventListener('pointerdown',e=>{down=true;sx=e.clientX;el.setPointerCapture(e.pointerId);el.style.transition='none'});
+  el.addEventListener('pointerdown',e=>{if(el._gone)return;down=true;sx=e.clientX;el.setPointerCapture(e.pointerId);el.style.transition='none'});
   el.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;el.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`;el.querySelector('.l').style.opacity=Math.max(0,dx/120);el.querySelector('.r').style.opacity=Math.max(0,-dx/120)});
-  const up=()=>{if(!down)return;down=false;if(Math.abs(dx)>90)swipe2d(el,Math.sign(dx));else{el.style.transition='transform .3s';el.style.transform='';el.querySelectorAll('.stamp').forEach(s=>s.style.opacity=0)}dx=0};
+  const up=()=>{if(!down)return;down=false;if(Math.abs(dx)>70&&!el._gone&&liveCards().pop()===el)MC.swipe(Math.sign(dx),'2d');else{el.style.transition='transform .3s';el.style.transform='';el.querySelectorAll('.stamp').forEach(s=>s.style.opacity=0)}dx=0};
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
-if(lite())fill();
-const sw=dir=>{if(lite())swipe2d(deck.lastElementChild,dir);else dispatchEvent(new CustomEvent('mc-swipe',{detail:dir}))};
+fill();
+const sw=dir=>MC.swipe(dir,'btn');
 document.getElementById('btnYes').onclick=()=>sw(1);document.getElementById('btnNo').onclick=()=>sw(-1);
 // fit card
 const fc=document.querySelector('.fitcard');if(fc){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){fc.classList.add('on');document.getElementById('ring').classList.add('on');io.disconnect()}}),{threshold:.3});io.observe(fc)}

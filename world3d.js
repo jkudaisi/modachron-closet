@@ -199,26 +199,27 @@ const cardGeo=new RoundedBoxGeometry(.36,.48,.008,2,.004);const edgeM=new THREE.
 const cards=[];let deckIdx=0;
 for(let i=0;i<4;i++){const mats=[edgeM,edgeM,edgeM,edgeM,new THREE.MeshStandardMaterial({map:lookTex[deckIdx%lookTex.length],roughness:.5}),edgeM];
   const c=new THREE.Mesh(new THREE.BoxGeometry(.36,.48,.008),mats);c.userData={li:deckIdx++,state:'stack',v:new THREE.Vector3(),spin:0,dx:0};c.castShadow=true;groups[1].add(c);cards.unshift(c)}
-function layoutStack(dt){cards.forEach((c,i)=>{const d=cards.length-1-i;if(c.userData.state!=='stack')return;
+function layoutStack(dt){const st=cards.filter(c=>c.userData.state==='stack');st.forEach((c,i)=>{const d=st.length-1-i;
   const tp=new THREE.Vector3(TABLE.x,1.06+(cards.length-d)*.004,TABLE.z+.04-d*.012);c.position.lerp(tp,Math.min(1,dt*8));const dx=c.userData.dx;
   c.rotation.set(-.3,.42+(d?d*.03:dx*.6),d?(d%2?.04:-.03):-dx*.35);c.position.x+=d?0:dx*.45;c.position.y+=d?0:Math.abs(dx)*.07;
   const em=c.material[4].emissive;if(!d){if(dx>=0)em.setRGB(dx*.15,dx*.35,dx*.1);else em.setRGB(-dx*.5,-dx*.1,-dx*.08)}else em.setRGB(0,0,0)})}
-function fling(dir){const c=cards[cards.length-1];if(!c||c.userData.state!=='stack')return;c.userData.state='fly';
+function fling(dir){let c=null;for(let k=cards.length-1;k>=0;k--)if(cards[k].userData.state==='stack'){c=cards[k];break}if(!c)return;c.userData.state='fly';
   const right=new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld,0);c.userData.v.copy(right).multiplyScalar(dir*3.6).add(new THREE.Vector3(0,1.4,-.5));c.userData.spin=dir*5;c.userData.life=0;
-  const L=MC.looks&&MC.looks[c.userData.li%MC.looks.length];if(L&&MC.apply)MC.apply(L,dir)}
+  }
 function updateCards(dt){layoutStack(dt);cards.slice().forEach(c=>{if(c.userData.state!=='fly')return;const u=c.userData;u.life+=dt;
   c.position.addScaledVector(u.v,dt);u.v.y-=4.5*dt;c.rotation.z-=u.spin*dt*.6;c.rotation.y+=u.spin*dt*.4;
   if(u.life>1.1){u.state='stack';u.dx=0;c.material[4].map=lookTex[deckIdx%lookTex.length];u.li=deckIdx++;c.material[4].needsUpdate=true;cards.splice(cards.indexOf(c),1);cards.unshift(c);c.position.set(TABLE.x,.95,TABLE.z)}})}
 addEventListener('mc-swipe',e=>fling(e.detail));
+const topCard=()=>{for(let k=cards.length-1;k>=0;k--)if(cards[k].userData.state==='stack')return cards[k];return cards[cards.length-1]};
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();let drag=null;const mouse={x:0,y:0,tx:0,ty:0};
 cv.style.touchAction='pan-y';
 const pick=e=>{ndc.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(ndc,cam);return ray};
-document.addEventListener('pointerdown',e=>{if(e.target!==cv&&!e.target.closest('.stop'))return;if(e.target.closest('.panel'))return;if(Math.abs(MC.t-1)>.6)return;const top=cards[cards.length-1];
+document.addEventListener('pointerdown',e=>{if(e.target!==cv&&!e.target.closest('.stop'))return;if(e.target.closest('.panel'))return;if(Math.abs(MC.t-1)>.6)return;const top=topCard();
   if(pick(e).intersectObject(top).length){drag={x:e.clientX};document.body.style.cursor='grabbing'}});
 addEventListener('pointermove',e=>{mouse.tx=e.clientX/innerWidth*2-1;mouse.ty=e.clientY/innerHeight*2-1;
-  if(drag){cards[cards.length-1].userData.dx=Math.max(-1.2,Math.min(1.2,(e.clientX-drag.x)/220))}
-  else if(Math.abs(MC.t-1)<.6&&!mobile){document.body.style.cursor=pick(e).intersectObject(cards[cards.length-1]).length?'grab':''}},{passive:true});
-const endDrag=()=>{if(!drag)return;const top=cards[cards.length-1],dx=top.userData.dx;drag=null;document.body.style.cursor='';if(Math.abs(dx)>.45)fling(Math.sign(dx));else top.userData.dx=0};addEventListener('pointerup',endDrag);addEventListener('pointercancel',()=>{if(drag){cards[cards.length-1].userData.dx=0;drag=null}});
+  if(drag){topCard().userData.dx=Math.max(-1.2,Math.min(1.2,(e.clientX-drag.x)/220))}
+  else if(Math.abs(MC.t-1)<.6&&!mobile){document.body.style.cursor=pick(e).intersectObject(topCard()).length?'grab':''}},{passive:true});
+const endDrag=()=>{if(!drag)return;const top=topCard(),dx=top.userData.dx;drag=null;document.body.style.cursor='';if(Math.abs(dx)>.45){top.userData.dx=0;if(MC.swipe)MC.swipe(Math.sign(dx),'3d');fling(Math.sign(dx))}else top.userData.dx=0};addEventListener('pointerup',endDrag);addEventListener('pointercancel',()=>{if(drag){topCard().userData.dx=0;drag=null}});
 
 // ---------- stop 2: weather window ----------
 const WIN=new THREE.Vector3(W-.02,1.55,-5);

@@ -203,10 +203,10 @@ const form=new THREE.Mesh(formGeo,formM);form.castShadow=true;man.add(form);
  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,.82,12),brass);pole.position.y=.41;man.add(pole);
  const base=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.035,40),walnutDark);base.position.y=.018;base.castShadow=true;man.add(base);
  const rug=new THREE.Mesh(new THREE.CircleGeometry(1.25,64),pbr('wool_boucle',3,0xd9cbb6,{roughness:1}));rug.rotation.x=-Math.PI/2;rug.position.y=.004;rug.receiveShadow=true;man.add(rug)}
-const formBox=new THREE.Box3().setFromBufferAttribute(formGeo.attributes.position);const formSh=formBox.max.y-.12;
+const formBox=new THREE.Box3().setFromBufferAttribute(formGeo.attributes.position);{const P=formGeo.attributes.position,uv=new Float32Array(P.count*2);for(let k=0;k<P.count;k++){uv[2*k]=Math.atan2(P.getX(k),P.getZ(k))/(2*Math.PI)+.5;uv[2*k+1]=P.getY(k)/1.8}formGeo.setAttribute('uv',new THREE.BufferAttribute(uv,2))}const formSh=formBox.max.y-.12;
 const LOOKT=['coat','shirt','hoodie','party'];
-const lookInner=[];const FCHAR=new THREE.Color(0x3a3836),FCREAM=new THREE.Color(0xd8cfbe);
-const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();o.userData.swap=1;const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
+const lookInner=[];const ribT=tl.load('tex/knit_rib.webp');ribT.colorSpace=THREE.SRGBColorSpace;ribT.wrapS=ribT.wrapT=THREE.RepeatWrapping;ribT.repeat.set(14,3);const ribC=ribT.clone();ribC.repeat.set(10,1);const jerseyMap=formM.map;const FCHAR=new THREE.Color(0x3a3836),FCREAM=new THREE.Color(0xd8cfbe),FOAT=new THREE.Color(0xd6bf96);
+const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();o.userData.swap=1;if(t==='coat'){const P=formGeo.attributes.position,yy=formBox.max.y-.07;let rs=0,n=0;for(let k=0;k<P.count;k++){if(Math.abs(P.getY(k)-yy)<.02){rs+=Math.hypot(P.getX(k),P.getZ(k));n++}}const nr=n?rs/n:.06;const tg=new THREE.TorusGeometry(nr*1.02,.022,12,32);tg.rotateX(Math.PI/2);const knit=new THREE.MeshStandardMaterial({map:ribC,color:0xd6bf96,roughness:1});for(let j=0;j<2;j++){const tm=new THREE.Mesh(tg,knit);tm.scale.set(.86,1,.74);tm.position.y=yy-.02+j*.032;o.add(tm)}}const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
   const yw=t==='shirt'?-Math.PI/2:0,sw=yw?gs.z:gs.x,sd=yw?gs.x:gs.z;const kw=Math.max(1,fs.x*1.12/sw),kd=Math.max(1,fs.z*1.22/sd);const sx=yw?kd:kw,sz=yw?kw:kd;inner.scale.set(sx,Math.max(1,kw*.92),sz);inner.rotation.y=yw;const gc=new THREE.Vector3();gb.getCenter(gc);const off=new THREE.Vector3(gc.x*sx,0,gc.z*sz).applyAxisAngle(new THREE.Vector3(0,1,0),yw);inner.position.set(-off.x,formBox.max.y-.02+(t==='hoodie'?.14:0),-off.z);o.add(inner);man.add(o);lookInner.push([i,inner,t,0xffffff]);return{g:o,o}});
 const lookSw=makeSwapper(looks,{lift:.3,drop:.4,dur:.9,spin:.3});
 await loadHi('coat');lookInner.forEach(([i,g,t,c])=>safeUpgrade(lookSw,i,g,t,c));
@@ -218,7 +218,7 @@ addEventListener('mc-look',e=>setLook(e.detail));setLook(MC.look||0);
 const GRADE=[{c:0xd6e2ff,i:12,e:.93,h:0xcad6ec},{c:0xffe0b4,i:16,e:1.08,h:0xfff0d8},{c:0xe6eeff,i:13,e:.98,h:0xdfe8f4},{c:0xffc48a,i:10,e:.84,h:0xd8b490}];
 const gk=new THREE.Color(0xfff0dc),gh=new THREE.Color(0xfff1e0),tc=new THREE.Color();let gE=1,gI=14;
 function updateMannequin(dt){lookSw.update(dt,clock.elapsedTime);if(rainBoots){rainBoots.visible=curLook===0||looks[0].w>.02;if(rainBoots.visible){prepFade(rainBoots);setOpacity(rainBoots,looks[0].w)}}
-  const on=Math.max(...looks.map(l=>l.w));{const ic=curLook===1?FCREAM:FCHAR;formM.color.lerp(ic,Math.min(1,dt*4))}form.scale.set(1-.2*on,1-.03*on,1-.32*on);
+  const on=Math.max(...looks.map(l=>l.w));{const ic=curLook===1?FCREAM:curLook===0?FOAT:FCHAR;if(jerseyMap){const wm=curLook===0&&looks[0].w>.05?ribT:jerseyMap;if(formM.map!==wm){formM.map=wm}}formM.color.lerp(ic,Math.min(1,dt*4))}form.scale.set(1-.2*on,1-.03*on,1-.32*on);
   const hw=THREE.MathUtils.clamp(1.2-MC.t,0,1),G=GRADE[curLook]||GRADE[0],k=Math.min(1,dt*2.2);
   tc.set(G.c).lerp(new THREE.Color(0xfff0dc),1-hw);gk.lerp(tc,k);key.color.copy(gk);tc.set(G.h).lerp(new THREE.Color(0xfff1e0),1-hw);gh.lerp(tc,k);hemi.color.copy(gh);
   gE+=((1+(G.e-1)*hw)-gE)*k;gI+=((14+(G.i-14)*hw)-gI)*k;r.toneMappingExposure=gE;key.intensity=gI}

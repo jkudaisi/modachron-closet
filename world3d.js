@@ -78,7 +78,7 @@ const dlGeo=new THREE.CircleGeometry(.06,20);const dl=new THREE.InstancedMesh(dl
  for(let z=Z0-1;z>Z1;z-=1.5)for(const x of[-1.1,1.1]){if(k<40){m.compose(new THREE.Vector3(x,H-.005,z),q,new THREE.Vector3(1,1,1));dl.setMatrixAt(k++,m)}}dl.count=k}scene.add(dl);
 // cove LED along ceiling edge
 [-W+.62,W-.62].forEach(x=>{const s=new THREE.Mesh(new THREE.BoxGeometry(.02,.02,Z0-Z1),led);s.position.set(x,H-.02,(Z0+Z1)/2);scene.add(s)});
-scene.add(new THREE.HemisphereLight(0xfff1e0,0x20160f,.25));
+const hemi=new THREE.HemisphereLight(0xfff1e0,0x20160f,.25);scene.add(hemi);
 const pts=[0,1].map(()=>{const p=new THREE.PointLight(0xffd6a8,7,7,2);scene.add(p);return p});
 const key=new THREE.SpotLight(0xfff0dc,14,9,.6,.8,1.4);key.position.set(0,H-.05,4);key.castShadow=!mobile;key.shadow.mapSize.set(1024,1024);key.shadow.bias=-.0003;key.shadow.radius=4;scene.add(key);scene.add(key.target);
 
@@ -94,7 +94,7 @@ const foldM=pbr('jersey_melange',1.6,0xffffff,{roughness:1});
 const boxM=new THREE.MeshStandardMaterial({color:0xd8c9b0,roughness:.8});
 // hanging garments collected in chunks
 const garmentSlots=[];// {type,mtx,col,chunk}
-function hang(type,x,y,z,facing,col,chunk){const m=new THREE.Matrix4();QQ.setFromEuler(new THREE.Euler(0,facing+(Math.random()-.5)*.12,0));m.compose(VV.set(x,y,z),QQ,SS);garmentSlots.push({type,m,col,chunk})}
+let curZC=0;function hang(type,x,y,z,facing,col,chunk){const rail=x.toFixed(2)+'|'+y+'|'+curZC.toFixed(2);const m=new THREE.Matrix4();QQ.setFromEuler(new THREE.Euler(0,facing+(Math.random()-.5)*.12,0));m.compose(VV.set(x,y,z),QQ,SS);garmentSlots.push({type,m,col,chunk,rail,x,y,facing})}
 const rnd=(a)=>a[Math.floor(Math.random()*a.length)];
 const SKIPR=[[-3.6,-6.4],[-18.6,-20.6]];// window, mirror on right wall
 const PATTERN=['A','B','C','B','D','A','B','E'];
@@ -103,8 +103,8 @@ const units=[];
 [-1,1].forEach(side=>{let u=0;for(let zc=Z0-.8;zc>Z1+.5;zc-=UW,u++){
   if(side>0&&SKIPR.some(([a,b])=>zc<a&&zc>b))continue;
   if(side<0&&zc<-20.6&&zc>-22.4)continue;// lounge nook
-  const type=PATTERN[(u+(side>0?3:0))%PATTERN.length];const x=side*(W-DEPTH/2);const facing=side<0?Math.PI/2:-Math.PI/2;const inner=side*(W-DEPTH);
-  const chunk=Math.max(0,Math.min(8,Math.round((Z0-1.5-zc)/3.3)));
+  const type=PATTERN[(u+(side>0?3:0))%PATTERN.length];const x=side*(W-DEPTH/2);const facing=side<0?0:Math.PI;const inner=side*(W-DEPTH);
+  curZC=zc;const chunk=Math.max(0,Math.min(8,Math.round((Z0-1.5-zc)/3.3)));
   units.push({zc,side,type});
   // carcass
   [zc+UW/2,zc-UW/2].forEach(z=>{M4.makeTranslation(x,UH/2,z);addPart('side',G.side,walnut,M4)});
@@ -113,11 +113,11 @@ const units=[];
   M4.makeTranslation(x,.06,zc);addPart('shelf',G.shelf,walnut,M4);
   M4.makeTranslation(inner+side*.02,UH-.04,zc);addPart('led',G.ledbar,led,M4);
   const rodAt=(y)=>{M4.makeRotationX(Math.PI/2).setPosition(x,y,zc);addPart('rod',G.rod,chrome,M4)};
-  if(type==='A'){rodAt(2.05);const ty=['coat','trench','slip','dress','party','coat'];for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens*1.1){const t=rnd(ty);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}}
-  if(type==='B'){rodAt(2.05);rodAt(1.05);M4.makeTranslation(x,1.6,zc);addPart('shelf',G.shelf,walnut,M4);
+  if(type==='A'){rodAt(2.05);const ty=['coat','trench','slip','dress','party','coat'];for(let z=zc+UW/2-.1;z>zc-UW/2+.08;z-=dens*2){const t=rnd(ty);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}}
+  if(type==='B'){rodAt(2.05);rodAt(1.05);
     const up=['tee','shirt','hoodie','jacket','denim','tee'],lo=['pants','pants','shirt'];
-    for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens){const t=rnd(up);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}
-    for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens*1.2){const t=rnd(lo);hang(t,x,1.04,z,facing,rnd(PAL[t]),chunk)}}
+    for(let z=zc+UW/2-.09;z>zc-UW/2+.07;z-=dens*1.4){const t=rnd(up);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}
+    for(let z=zc+UW/2-.09;z>zc-UW/2+.07;z-=dens*1.1){const t=rnd(lo);hang(t,x,1.04,z,facing,rnd(PAL[t]),chunk)}}
   if(type==='C'){for(let s=0;s<6;s++){const y=.42+s*.36;M4.makeTranslation(x,y,zc);addPart('shelf',G.shelf,walnut,M4);
     for(const dz of[-.3,0,.3]){const n=1+Math.floor(Math.random()*4);const c=rnd([0xf3efe7,0xc9b79c,0x3d4a5c,0x6da87f,0x8a7a66,0x2b2b2b,0xd8cdb8,0x5a2330,0x9aa38a]);
       for(let k=0;k<n;k++){M4.makeRotationY((Math.random()-.5)*.08).setPosition(x+side*.02,y+.05+k*.072,zc+dz);addPart('fold',G.fold,foldM,M4,new THREE.Color(c).offsetHSL(0,0,(Math.random()-.5)*.05).getHex())}}}}
@@ -125,7 +125,7 @@ const units=[];
       for(const dz of[-.24,.24])units.push({shoe:true,x:x+side*.03,y:y+.05,z:zc+dz,side});}
     for(const dz of[-.25,.25]){M4.makeTranslation(x,UH-.09,zc+dz);addPart('sbox',G.shoebox,boxM,M4)}}
   if(type==='E'){for(let s=0;s<4;s++){M4.makeTranslation(inner+side*.02,.2+s*.24,zc);addPart('drawer',G.drawer,walnut,M4);M4.makeTranslation(inner-side*.005,.24+s*.24,zc);addPart('handle',G.handle,brass,M4)}
-    M4.makeTranslation(x,1.08,zc);addPart('shelf',G.shelf,walnut,M4);rodAt(2.05);for(let z=zc+UW/2-.08;z>zc-UW/2+.05;z-=dens){const t=rnd(['tee','shirt']);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}}
+    M4.makeTranslation(x,1.08,zc);addPart('shelf',G.shelf,walnut,M4);rodAt(2.05);for(let z=zc+UW/2-.09;z>zc-UW/2+.07;z-=dens*1.4){const t=rnd(['tee','shirt']);hang(t,x,2.04,z,facing,rnd(PAL[t]),chunk)}}
 }});
 flushParts();
 
@@ -137,21 +137,30 @@ function bake(o,swayAmp){o.updateMatrixWorld(true);const parts=[];o.traverse(m=>
   const mt=m.material.clone();mt.side=THREE.DoubleSide;mt.envMapIntensity=.8;if(mt.map)mt.map.anisotropy=4;sway(mt,swayAmp);parts.push({geo:g,mat:mt})});return parts}
 const PARTS={},HI={};
 await Promise.all(TYPES.map(async t=>{PARTS[t]=bake(await loadGLB(`models/sf/${SF[t]}_lo.glb`),t==='coat'||t==='trench'?.5:1)}));
+// pack each rail by real garment thickness along the rod (world z), touching but not intersecting
+const THK={},WID={};TYPES.forEach(t=>{const b=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();b.union(q.geo.boundingBox)});THK[t]=b.max.z-b.min.z;WID[t]=b.max.x-b.min.x});
+{const rails={};garmentSlots.forEach(g=>(rails[g.rail]=rails[g.rail]||[]).push(g));const keep=[];let dropped=0,overl=0;
+ for(const k in rails){const L=rails[k];const zc=+k.split('|')[2];let z=zc+UW/2-.035;const zEnd=zc-UW/2+.035;
+  for(const g of L){const th=Math.max(.035,THK[g.type]*.85)+.012;if(z-th<zEnd){dropped++;continue}
+   const zz=z-th/2;z-=th;const sc=Math.min(1,(DEPTH-.04)/Math.max(.01,WID[g.type]));
+   QQ.setFromEuler(new THREE.Euler(0,g.facing+(Math.random()-.5)*.06,0));g.m=new THREE.Matrix4().compose(VV.set(g.x,g.y,zz),QQ,new THREE.Vector3(sc,1,1));g.z=zz;g.th=th;keep.push(g)}}
+ for(const k in rails){const L=keep.filter(g=>g.rail===k);for(let i=1;i<L.length;i++){if(L[i-1].z-L[i-1].th/2<L[i].z+L[i].th/2-1e-4)overl++}}
+ garmentSlots.length=0;keep.forEach(g=>garmentSlots.push(g));window.__rackCheck={rails:Object.keys(rails).length,items:keep.length,dropped,overlaps:overl};console.log('rack pack',JSON.stringify(window.__rackCheck))}
 function loadHi(t){if(!HI[t])HI[t]=loadGLB(`models/sf/${SF[t]}.glb`).then(o=>bake(o,t==='coat'||t==='trench'?.5:1));return HI[t]}
 const showcase=[];
-function addHanger(g,t){if(OWNH[t])return;hangerGeo.forEach((hg,hi)=>{const h=new THREE.Mesh(hg,hi?chrome:hangerWood);h.position.y=HY[t];g.add(h)})}
+function addHanger(g,t){if(OWNH[t])return;hangerGeo.forEach((hg,hi)=>{const h=new THREE.Mesh(hg,hi?chrome:hangerWood);g.add(h)})}
 function fillG(g,parts,col){g.children.filter(c=>c.userData.garm).forEach(c=>{g.remove(c);c.material.dispose()});
-  parts.forEach(p=>{const m=new THREE.Mesh(p.geo,p.mat.clone());m.material.onBeforeCompile=p.mat.onBeforeCompile;m.material.customProgramCacheKey=p.mat.customProgramCacheKey;m.material.color.multiply(new THREE.Color(col));m.userData.garm=1;m.castShadow=!mobile;m.receiveShadow=true;g.add(m)})}
-function makeG(t,col=0xffffff,stop=-1,hanger=true){const g=new THREE.Group();g.userData={t,col,stop,hi:false};fillG(g,PARTS[t],col);if(hanger)addHanger(g,t);if(stop>=0)showcase.push(g);return g}
+  const off=g.userData.hanger&&!OWNH[g.userData.t]?-HY[g.userData.t]:0;parts.forEach(p=>{const m=new THREE.Mesh(p.geo,p.mat.clone());m.position.y=off;m.material.onBeforeCompile=p.mat.onBeforeCompile;m.material.customProgramCacheKey=p.mat.customProgramCacheKey;m.material.color.multiply(new THREE.Color(col));m.userData.garm=1;m.castShadow=!mobile;m.receiveShadow=true;g.add(m)})}
+function makeG(t,col=0xffffff,stop=-1,hanger=true){const g=new THREE.Group();g.userData={t,col,stop,hi:false,hanger};fillG(g,PARTS[t],col);if(hanger)addHanger(g,t);if(stop>=0)showcase.push(g);return g}
 function upgradeNear(){if(mobile)return;showcase.forEach(g=>{const u=g.userData;if(u.hi||u.loading||Math.abs(MC.t-u.stop)>1.6)return;u.loading=true;loadHi(u.t).then(p=>{fillG(g,p,u.col);u.hi=true})})}
 const chunks=[];
 for(let c=0;c<9;c++){const g=new THREE.Group();scene.add(g);const ch={g,meshes:[],center:new THREE.Vector3()};chunks.push(ch);
   const slots=garmentSlots.filter(s=>s.chunk===c);if(!slots.length)continue;
   let zs=0;slots.forEach(s=>zs+=s.m.elements[14]);ch.center.set(0,1.5,zs/slots.length);
   TYPES.forEach(t=>{const L=slots.filter(s=>s.type===t);if(!L.length)return;PARTS[t].forEach(p=>{const im=new THREE.InstancedMesh(p.geo,p.mat,L.length);
-    L.forEach((s,i)=>{im.setMatrixAt(i,s.m);im.setColorAt(i,new THREE.Color(s.col))});im.receiveShadow=true;g.add(im)})});
+    L.forEach((s,i)=>{const mm=s.m.clone().multiply(new THREE.Matrix4().makeTranslation(0,OWNH[t]?0:-HY[t],0));im.setMatrixAt(i,mm);im.setColorAt(i,new THREE.Color(s.col))});im.receiveShadow=true;g.add(im)})});
   const HS=slots.filter(s=>!OWNH[s.type]);
-  hangerGeo.forEach((hg,hi)=>{const im=new THREE.InstancedMesh(hg,hi===0?hangerWood:chrome,HS.length);HS.forEach((s,i)=>{const m=s.m.clone();m.multiply(new THREE.Matrix4().makeTranslation(0,HY[s.type],0));im.setMatrixAt(i,m)});g.add(im)})}
+  hangerGeo.forEach((hg,hi)=>{const im=new THREE.InstancedMesh(hg,hi===0?hangerWood:chrome,HS.length);HS.forEach((s,i)=>{im.setMatrixAt(i,s.m)});g.add(im)})}
 // shoes on D shelves
 loadGLB('models/props/rubber_boots.glb').then(o=>{const L=units.filter(u=>u.shoe);const subs=[];o.updateMatrixWorld(true);o.traverse(m=>m.isMesh&&subs.push(m));
   const b=new THREE.Box3().setFromObject(o),sz=new THREE.Vector3();b.getSize(sz);const k=.3/Math.max(sz.x,sz.z);
@@ -161,6 +170,29 @@ const decor=[['wicker_basket_02',.35],['vintage_suitcase',.5],['fishermans_hat',
 decor.forEach(([n,s],di)=>loadGLB(`models/props/${n}.glb`).then(o=>{const b=new THREE.Box3().setFromObject(o),sz=new THREE.Vector3();b.getSize(sz);const k=s/Math.max(sz.x,sz.z);
   units.filter((u,i)=>!u.shoe&&u.type&&(i+di*3)%7===0).slice(0,mobile?3:6).forEach(u=>{const c=o.clone(true);c.scale.setScalar(k);c.position.set(u.side*(W-DEPTH/2),UH-b.min.y*k,u.zc+(Math.random()-.5)*.3);c.rotation.y=Math.random()*6;scene.add(c)})}).catch(()=>{}));
 
+// ---------- smooth garment swapper (lift-off, drop-on settle, crossfade) ----------
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const eOut3=x=>1-Math.pow(1-x,3),eIn3=x=>x*x*x;
+function prepFade(g){g.traverse(m=>{if(m.isMesh&&!m.material.transparent){m.material.transparent=true;m.material.depthWrite=true;m.material.needsUpdate=true}})}
+function setOpacity(g,a){g.traverse(m=>{if(m.isMesh)m.material.opacity=a})}
+function makeSwapper(items,{lift=.32,drop=.42,dur=.95,spin=.28}={}){
+  items.forEach(it=>{it.w=0;it.tw=0;it.base=it.g.position.clone();it.rot=it.g.rotation.y;it.arr=-1;prepFade(it.g);it.g.visible=false});
+  let cur=-1;
+  return{items,get cur(){return cur},set(n){if(n===cur)return;cur=n;items.forEach((it,i)=>it.tw=i===n?1:0)},
+   busy(){return items.some(it=>it.w>0.001&&it.w<0.999)},
+   update(dt,t){const outGoing=items.some(it=>it.tw===0&&it.w>.45);
+    items.forEach(it=>{const sp=dt/dur;
+      if(it.tw===1){if(!outGoing||RM)it.w=Math.min(1,it.w+sp*1.15);if(it.w>=1&&it.arr<0)it.arr=t}else{it.w=Math.max(0,it.w-sp*1.35);it.arr=-1}
+      const g=it.g;g.visible=it.w>0.002;if(!g.visible)return;
+      if(RM){g.position.copy(it.base);g.rotation.set(0,it.rot,0);setOpacity(g,it.w);return}
+      let y=0,ry=0,rz=0,a=1;
+      if(it.tw===1){const e=eOut3(it.w);y=drop*(1-e);ry=-spin*.5*(1-e);a=Math.min(1,it.w*1.8);
+        if(it.arr>=0){const k=t-it.arr;rz=.035*Math.exp(-3.2*k)*Math.sin(9*k);ry+=.02*Math.exp(-2.5*k)*Math.sin(6*k)}}
+      else{const e=eIn3(1-it.w);y=lift*e;ry=spin*e;a=Math.min(1,it.w*1.6)}
+      g.position.set(it.base.x,it.base.y+y,it.base.z);g.rotation.set(0,it.rot+ry,rz);setOpacity(g,a)})}}}
+function safeUpgrade(sw,idx,inner,t,col){loadHi(t).then(p=>{const go=()=>{const it=sw.items[idx];if(it.w>0.001&&it.w<0.999||sw.busy()){setTimeout(go,300);return}
+  fillG(inner,p,col);prepFade(inner);setOpacity(inner,it.w);warm()};go()})}
+let warmT=0;function warm(){clearTimeout(warmT);warmT=setTimeout(()=>{try{const vis=[];scene.traverse(o=>{if(o.isGroup&&!o.visible&&o.userData.swap){vis.push(o);o.visible=true}});r.compile(scene,cam);vis.forEach(o=>o.visible=false);scene.traverse(m=>{if(m.isMesh&&m.material.map&&!m.material.map.__w){r.initTexture(m.material.map);m.material.map.__w=1}})}catch(e){}},50)}
 // ---------- stop 0: dress form + real draped looks ----------
 const MAN=new THREE.Vector3(mobile?0:.85,0,2.2);
 const man=new THREE.Group();man.position.copy(MAN);man.rotation.y=-.25;groups[0].add(man);
@@ -173,17 +205,23 @@ const form=new THREE.Mesh(formGeo,formM);form.castShadow=true;man.add(form);
  const rug=new THREE.Mesh(new THREE.CircleGeometry(1.25,64),pbr('wool_boucle',3,0xd9cbb6,{roughness:1}));rug.rotation.x=-Math.PI/2;rug.position.y=.004;rug.receiveShadow=true;man.add(rug)}
 const formBox=new THREE.Box3().setFromBufferAttribute(formGeo.attributes.position);const formSh=formBox.max.y-.12;
 const LOOKT=['coat','shirt','hoodie','party'];
-const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();if(t==='coat'){const sh=makeG('shirt',0xeee6d4,-1,false);sh.position.y=formBox.max.y-.03;sh.scale.set(.8,.82,.85);o.add(sh);if(!mobile)loadHi('shirt').then(p=>fillG(sh,p,0xeee6d4))}const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
-  const kx=Math.max(1,fs.x*1.12/gs.x),kz=Math.max(1,fs.z*1.22/gs.z);inner.scale.set(kx,Math.max(1,kx*.92),kz);inner.position.y=formBox.max.y-.02+(t==='hoodie'?.14:0);o.add(inner);o.visible=false;man.add(o);
-  if(!mobile||i===0)loadHi(t).then(p=>fillG(inner,p,0xffffff));return{o,w:0,tw:0}});
-await loadHi('coat');
+const lookInner=[];
+const looks=LOOKT.map((t,i)=>{const o=new THREE.Group();o.userData.swap=1;if(t==='coat'){const sh=makeG('shirt',0xeee6d4,-1,false);sh.position.y=formBox.max.y-.03;sh.scale.set(.8,.82,.85);o.add(sh);lookInner.push([i,sh,'shirt',0xeee6d4])}const inner=makeG(t,0xffffff,-1,false);const gb=new THREE.Box3();PARTS[t].forEach(q=>{q.geo.computeBoundingBox();gb.union(q.geo.boundingBox)});const gs=new THREE.Vector3();gb.getSize(gs);const fs=new THREE.Vector3();formBox.getSize(fs);
+  const kx=Math.max(1,fs.x*1.12/gs.x),kz=Math.max(1,fs.z*1.22/gs.z);inner.scale.set(kx,Math.max(1,kx*.92),kz);inner.position.y=formBox.max.y-.02+(t==='hoodie'?.14:0);o.add(inner);man.add(o);lookInner.push([i,inner,t,0xffffff]);return{g:o,o}});
+const lookSw=makeSwapper(looks,{lift:.3,drop:.4,dur:.9,spin:.3});
+await loadHi('coat');lookInner.forEach(([i,g,t,c])=>safeUpgrade(lookSw,i,g,t,c));
 // boots for rain look
 let rainBoots=null;loadGLB('models/props/rubber_boots.glb').then(o=>{const b=new THREE.Box3().setFromObject(o),sz=new THREE.Vector3();b.getSize(sz);const k=.32/Math.max(sz.x,sz.z);o.scale.setScalar(k);o.position.set(.42,-b.min.y*k,.25);o.rotation.y=-.6;man.add(o);rainBoots=o}).catch(()=>{});
-let curLook=0;looks[0].tw=1;
-function setLook(n){curLook=n;looks.forEach((l,i)=>l.tw=i===n?1:0)}
+let curLook=0;
+function setLook(n){curLook=n;lookSw.set(n)}
 addEventListener('mc-look',e=>setLook(e.detail));setLook(MC.look||0);
-function updateMannequin(dt){looks.forEach(l=>{const sp=l.tw>l.w?1.6:2.6;l.w+=(l.tw-l.w)*Math.min(1,dt*sp);const e=l.w*l.w*(3-2*l.w);l.o.visible=l.w>.02;
-  l.o.position.y=(1-e)*(l.tw>0?.55:.35);l.o.scale.setScalar(.97+.03*e)});if(rainBoots)rainBoots.visible=curLook===0;const on=Math.max(...looks.map(l=>l.w));form.scale.set(1-.2*on,1-.03*on,1-.32*on)}
+const GRADE=[{c:0xd6e2ff,i:12,e:.93,h:0xcad6ec},{c:0xffe0b4,i:16,e:1.08,h:0xfff0d8},{c:0xe6eeff,i:13,e:.98,h:0xdfe8f4},{c:0xffc48a,i:10,e:.84,h:0xd8b490}];
+const gk=new THREE.Color(0xfff0dc),gh=new THREE.Color(0xfff1e0),tc=new THREE.Color();let gE=1,gI=14;
+function updateMannequin(dt){lookSw.update(dt,clock.elapsedTime);if(rainBoots){rainBoots.visible=curLook===0||looks[0].w>.02;if(rainBoots.visible){prepFade(rainBoots);setOpacity(rainBoots,looks[0].w)}}
+  const on=Math.max(...looks.map(l=>l.w));form.scale.set(1-.2*on,1-.03*on,1-.32*on);
+  const hw=THREE.MathUtils.clamp(1.2-MC.t,0,1),G=GRADE[curLook]||GRADE[0],k=Math.min(1,dt*2.2);
+  tc.set(G.c).lerp(new THREE.Color(0xfff0dc),1-hw);gk.lerp(tc,k);key.color.copy(gk);tc.set(G.h).lerp(new THREE.Color(0xfff1e0),1-hw);gh.lerp(tc,k);hemi.color.copy(gh);
+  gE+=((1+(G.e-1)*hw)-gE)*k;gI+=((14+(G.i-14)*hw)-gI)*k;r.toneMappingExposure=gE;key.intensity=gI}
 // a freestanding rail behind the form with real garments
 {const rail=new THREE.Group();rail.position.set(mobile?1.5:2.05,0,MAN.z-.9);rail.rotation.y=-Math.PI/2+.35;groups[0].add(rail);
  [-.9,.9].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,1.75,10),brass);p.position.set(x,.875,0);rail.add(p);const f=new THREE.Mesh(new THREE.BoxGeometry(.04,.02,.5),brass);f.position.set(x,.01,0);rail.add(f)});
@@ -242,15 +280,21 @@ const shaft=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.4,4,24,1,true),new T
 shaft.position.set(WIN.x-1.8,.9,WIN.z);shaft.rotation.z=-Math.PI/2.5;groups[2].add(shaft);
 // garment on a wall hook beside the window, swaps with weather
 const wxT=[['trench',0xffffff],['tee',0xf1ece2],['coat',0xffffff],['party',0xffffff]];
-const wxG=wxT.map(([t,c])=>{const m=makeG(t,c,2);m.position.set(W-.22,2.0,WIN.z+1.75);m.rotation.y=-Math.PI/2+.5;groups[2].add(m);return m});
-{const hk=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.25,8),brass);hk.rotation.z=Math.PI/2;hk.position.set(W-.12,2.1,WIN.z+1.75);groups[2].add(hk)}
+const VAL=new THREE.Vector3(W-.95,0,WIN.z+.55);
+{const g=groups[2];const p=new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,1.8,12),brass);p.position.set(VAL.x,.9,VAL.z);g.add(p);
+ const b=new THREE.Mesh(new THREE.CylinderGeometry(.2,.24,.03,32),walnutDark);b.position.set(VAL.x,.015,VAL.z);g.add(b);
+ const arm=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.22,10),brass);arm.rotation.x=Math.PI/2;arm.position.set(VAL.x,1.8,VAL.z+.1);g.add(arm)}
+const wxG=wxT.map(([t,c],i)=>{const m=makeG(t,c,-1);m.userData.swap=1;m.position.set(VAL.x,1.78,VAL.z+.2);m.rotation.y=-.55;groups[2].add(m);return{g:m,t,c}});
+const wxSw=makeSwapper(wxG,{lift:.26,drop:.34,dur:.85,spin:.22});wxSw.set(0);
+wxG.forEach((it,i)=>safeUpgrade(wxSw,i,it.g,it.t,it.c));
+
 let wxShown=0;
 function updateWeather(dt,t){const near=Math.abs(MC.t-2)<1.2;const target=near?Math.floor((t/3.2)%4):0;
   wxShown+=(target-wxShown)*(Math.abs(target-wxShown)>2?1:Math.min(1,dt*2));skyM.uniforms.uMode.value=wxShown;
   const snow=target===2,rain=target===0;ptM.opacity=rain||snow?.7:0;ptM.size=snow?.03:.012;
   const a=pg.attributes.position;for(let i=0;i<NP;i++){let y=a.getY(i)-dt*(snow?.3:2.4);if(y<WIN.y-1.05)y=WIN.y+1.05;a.setY(i,y)}a.needsUpdate=true;
   shaft.material.opacity+=(((target===1)?.06:0)-shaft.material.opacity)*dt*3;
-  wxG.forEach((m,i)=>{const s=THREE.MathUtils.lerp(m.scale.x,i===target?1:.001,Math.min(1,dt*5));m.scale.setScalar(s);m.visible=s>.01})}
+  wxSw.set(target);wxSw.update(dt,t)}
 
 // ---------- stop 3: closet island with drawers + phone ----------
 function screenTex(draw){const c=document.createElement('canvas');c.width=256;c.height=520;const x=c.getContext('2d');const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.userData={x,draw};draw(x,0);t.needsUpdate=true;return t}
